@@ -7,9 +7,10 @@ Configuration is done through Octo's toml file.
 
 Right now it's a very simple tool.
 
-`name`    is self explanatory
-`edition` is used to set the C standard to build against
-`version` is only used to output upon compilation
+`[package]`
+* `name`    is self explanatory
+* `edition` is used to set the C standard to build against
+* `version` is only used to output upon compilation
 
 ### Available commands
 
