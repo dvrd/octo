@@ -226,7 +226,7 @@ void run_init() {
   }
 
   if (!file_exist(".gitignore")) {
-    bool error = system("echo '/bin' > .gitignore");
+    bool error = system("echo '# Added by octo\n\n/target' > .gitignore");
     if (error) {
       exit(1);
     }
@@ -282,7 +282,7 @@ void run_new(int argc, char *proj_name) {
     exit(1);
   }
 
-  error = system("echo '/bin' > .gitignore");
+  error = system("echo '# Added by octo\n\n/target' > .gitignore");
   if (error) {
     exit(1);
   }
