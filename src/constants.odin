@@ -5,9 +5,12 @@ octo [v0.1.0]
 
 Usage: 
 
-  init  - initialize a project in the current directory
-  new	- create a new project
-  run   - run current directory project
+  init      - initialize a project in the current directory
+  new       - create a new project
+  run       - build a debug version and run current directory project
+  build     - build a debug version of current directory project
+  release   - build a release version of current directory project
+  help      - show this message
 `
 
 NEW_USAGE :: `Usage: 
