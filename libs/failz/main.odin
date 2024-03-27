@@ -272,7 +272,7 @@ ERRORNO_MSGS: [105]string = {
 	"Interface output queue is full",
 }
 
-bail :: proc(err: Error, msg := "", should_exit := true) {
+bail :: proc(err: Error = true, msg := "", should_exit := true) {
 	#partial switch e in err {
 	case AllocError:
 		fmt.eprintln(ERROR, msg, e)
@@ -283,7 +283,7 @@ bail :: proc(err: Error, msg := "", should_exit := true) {
 		fmt.eprintln(ERROR, msg, ERRORNO_MSGS[e])
 	case bool:
 		if !e {return}
-		fmt.eprintln(msg)
+		fmt.eprintln(ERROR, msg)
 	}
 
 	if err != nil && should_exit {os.exit(1)}
