@@ -1,5 +1,7 @@
 package octo
 
+REGISTRY_DIR :: "/.octo"
+
 USAGE :: `
 octo [v0.1.0]
 
@@ -10,11 +12,17 @@ Usage:
   run       - build a debug version and run current directory project
   build     - build a debug version of current directory project
   release   - build a release version of current directory project
+  install   - generate a symlink of your project to /usr/local/bin
   help      - show this message
+  add       - add a dependency library to the project
 `
 
 NEW_USAGE :: `Usage: 
   new <name> - create a new project
+`
+
+ADD_USAGE :: `Usage: 
+  add <pkg> - add a dependency library to the project
 `
 
 OLS_FILE :: "ols.json"
