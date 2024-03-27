@@ -28,9 +28,6 @@ BG_WHITE :: "\x1B[47m"
 BLUE :: "\x1B[38;2;0;0;210m"
 YELLOW :: "\x1B[38;2;255;210;0m"
 
-
-RGB :: "\x1B[38;2;%d;%d;%d;0m"
-
 bold :: proc(str: string) -> string {
 	return strings.concatenate({BOLD, str, END})
 }
@@ -40,6 +37,6 @@ underline :: proc(str: string) -> string {
 }
 
 colorize :: proc(str: string, color: [3]u8) -> string {
-	color := fmt.tprintf(RGB, color.r, color.g, color.b)
+	color := fmt.tprintf("\x1B[38;2;%d;%d;%dm", color.r, color.g, color.b)
 	return strings.concatenate({color, str, END})
 }
