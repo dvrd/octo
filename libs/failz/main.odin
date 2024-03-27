@@ -3,9 +3,17 @@ package failz
 import "core:fmt"
 import "core:mem"
 import "core:os"
+import "core:strings"
+import "libs:ansi"
 
-ERROR :: " \x1B[91m\x1b[0m"
-WARNING :: " \x1B[38;2;255;210;0m\x1b[0m "
+INFO := ansi.colorize("  ", {65, 105, 225})
+ERROR := ansi.colorize("  ", {220, 20, 60})
+WARNING := ansi.colorize("  ", {147, 112, 219})
+MESSAGE := ansi.colorize(" 󱥂 ", {30, 144, 255})
+
+purple :: proc(str: string) -> string {
+	return ansi.colorize(str, {147, 112, 219})
+}
 
 AllocError :: mem.Allocator_Error
 
@@ -272,18 +280,30 @@ ERRORNO_MSGS: [105]string = {
 	"Interface output queue is full",
 }
 
-bail :: proc(err: Error = true, msg := "", should_exit := true) {
+catch :: proc(err: Error, msg: string = "", should_exit := true, location := #caller_location) {
+	sb := strings.builder_make()
+	fmt.sbprintf(&sb, "%s ", ERROR)
+	fmt.sbprintf(&sb, "%s: %s\n", purple(location.procedure), msg)
+
 	#partial switch e in err {
 	case AllocError:
-		fmt.eprintln(ERROR, msg, e)
+		fmt.sbprint(&sb, MESSAGE, e)
+		fmt.sbprintf(&sb, "in %s at %d:%d", location.file_path, location.line, location.column)
+		fmt.eprintln(strings.to_string(sb))
 	case SystemError:
-		fmt.eprintln(ERROR, msg, e.msg)
+		fmt.sbprint(&sb, MESSAGE, e.msg)
+		fmt.sbprintf(&sb, "in %s at %d:%d", location.file_path, location.line, location.column)
+		fmt.eprintln(strings.to_string(sb))
 	case Errno:
 		if e == .ERROR_NONE {return}
-		fmt.eprintln(ERROR, msg, ERRORNO_MSGS[e])
+		fmt.sbprint(&sb, MESSAGE, os.get_last_error_string())
+		fmt.sbprintf(&sb, "in %s at %d:%d", location.file_path, location.line, location.column)
+		fmt.eprintln(strings.to_string(sb))
 	case bool:
 		if !e {return}
-		fmt.eprintln(ERROR, msg)
+		fmt.sbprint(&sb, MESSAGE)
+		fmt.sbprintf(&sb, "in %s at %d:%d", location.file_path, location.line, location.column)
+		fmt.eprintln(strings.to_string(sb))
 	}
 
 	if err != nil && should_exit {os.exit(1)}

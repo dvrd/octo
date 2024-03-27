@@ -12,17 +12,17 @@ import "libs:failz"
 main :: proc() {
 	using failz
 
-	bail(len(os.args) < 2, USAGE)
+	catch(len(os.args) < 2, USAGE)
 
 	switch command := os.args[1]; command {
 	case "new":
-		bail(len(os.args) < 3, NEW_USAGE)
+		catch(len(os.args) < 3, NEW_USAGE)
 		proj_name := os.args[2]
-		bail(proj_name == "help", NEW_USAGE)
+		catch(proj_name == "help", NEW_USAGE)
 
 		proj_path := make_project_dir(proj_name)
 		err := os.set_current_directory(proj_path)
-		bail(Errno(err))
+		catch(Errno(err))
 
 		ols_path := make_ols_file(proj_path)
 		src_path := make_src_dir(proj_path)
@@ -33,7 +33,7 @@ main :: proc() {
 	case "init":
 		pwd := os.get_current_directory()
 		pwd_info, err := os.stat(pwd)
-		bail(Errno(err))
+		catch(Errno(err))
 
 		ols_path := make_ols_file(pwd)
 		src_path := make_src_dir(pwd)
@@ -68,15 +68,15 @@ main :: proc() {
 		target_path := "/usr/local/bin"
 		cmd.launch({"sudo", "ln", "-s", bin_path, target_path})
 	case "add":
-		bail(len(os.args) < 3, ADD_USAGE)
+		catch(len(os.args) < 3, ADD_USAGE)
 		pkg_name := os.args[2]
-		bail(pkg_name == "help", ADD_USAGE)
+		catch(pkg_name == "help", ADD_USAGE)
 		home := os.get_env("HOME")
 		pwd := os.get_current_directory()
 
 		libs_path := filepath.join({pwd, "/libs"})
 		if !os.exists(libs_path) {
-			bail(Errno(os.make_directory(libs_path)))
+			catch(Errno(os.make_directory(libs_path)))
 		}
 
 		local_pkg_path := filepath.join({libs_path, "/", pkg_name})
@@ -87,7 +87,7 @@ main :: proc() {
 			copy_dir(registry_pkg_path, local_pkg_path)
 			info(fmt.tprintf("Added package `%s`", pkg_name))
 		} else {
-			bail(Errno(os.make_directory(registry_pkg_path)))
+			catch(Errno(os.make_directory(registry_pkg_path)))
 		}
 	case:
 		fmt.println(USAGE)
