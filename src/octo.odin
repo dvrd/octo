@@ -28,7 +28,7 @@ get_config :: proc() -> ^Package {
 update_config :: proc(pkg: ^Package) {
 	using failz
 
-	debug(fmt.tprintf("Updating config %#v", pkg^))
+	debug(fmt.tprintf("Updating config\n%#v", pkg^))
 
 	opts: json.Marshal_Options
 	opts.pretty = true
