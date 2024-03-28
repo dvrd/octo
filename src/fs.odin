@@ -109,14 +109,12 @@ remove_dir :: proc(dir: string) -> failz.Error {
 
 		debug(fmt.tprint("Removing file:", file.fullpath))
 		if os.remove(file.fullpath) != os.ERROR_NONE {
-			debug(os.get_last_error_string())
 			return failz.SystemError{.FileRemove, os.get_last_error_string()}
 		}
 	}
 
 	debug(fmt.tprint("Removing directory:", dir))
 	if os.remove(dir) != os.ERROR_NONE {
-		debug(os.get_last_error_string())
 		return failz.SystemError{.DirectoryRemove, os.get_last_error_string()}
 	}
 

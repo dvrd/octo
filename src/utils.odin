@@ -60,6 +60,35 @@ make_ols_file :: proc(proj_path: string) -> string {
 	return ols_path
 }
 
+make_octo_file :: proc(proj_path: string, proj_name: string) -> string {
+	using failz
+
+	octo_config_path := filepath.join({proj_path, OCTO_CONFIG_FILE})
+	if os.exists(octo_config_path) {
+		warn(msg = fmt.tprintf("Config %s already exists", bold(OCTO_CONFIG_FILE)))
+	} else {
+		user_email, ok := cmd.popen("git config --global user.email", read_size = 128)
+
+		user_name: string
+		user_name, ok = cmd.popen("git config --global user.name", read_size = 128)
+
+		owner := ""
+		if ok {
+			owner = fmt.tprintf(
+				"%s<%s>",
+				strings.trim_space(user_name),
+				strings.trim_space(user_email),
+			)
+		}
+		write_to_file(
+			octo_config_path,
+			fmt.tprintf(OCTO_CONFIG_TEMPLATE, proj_name, owner, "0.1.0"),
+		)
+	}
+
+	return octo_config_path
+}
+
 make_src_dir :: proc(proj_path: string) -> string {
 	using failz
 

@@ -1,15 +1,43 @@
 package octo
 
+import "core:encoding/json"
 import "core:fmt"
 import "core:os"
-import "core:path/filepath"
-import "core:strings"
-import "core:time"
-import "libs:ansi"
-import "libs:cmd"
 import "libs:failz"
 
-main :: proc() {
+Package :: struct {
+	name:    string,
+	owner:   string,
+	version: string,
+	deps:    [dynamic]string,
+}
+
+get_config :: proc() -> ^Package {
+	using failz
+
+	pkg := new(Package)
+	config_file, success := os.read_entire_file(OCTO_CONFIG_FILE)
+	catch(!success, "Failed to read config file")
+
+	err := json.unmarshal(config_file, pkg)
+	catch(err != nil, "Failed to unmarshal config file")
+
+	return pkg
+}
+
+update_config :: proc(pkg: ^Package) {
+	using failz
+
+	debug(fmt.tprintf("Updating config %#v", pkg^))
+
+	opts: json.Marshal_Options
+	opts.pretty = true
+	data, err := json.marshal(pkg^, opts)
+	catch(err != nil, "Failed to parse package struct")
+
+	os.write_entire_file(OCTO_CONFIG_FILE, data)
+}
+octo :: proc() {
 	using failz
 
 	catch(len(os.args) < 2, USAGE)

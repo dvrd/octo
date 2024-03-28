@@ -56,6 +56,13 @@ OLS_TEMPLATE :: `
 }
 `
 
+OCTO_CONFIG_FILE :: "octo.json"
+OCTO_CONFIG_TEMPLATE :: `{{
+    "name": "%s",
+    "owner": "%s",
+    "version": "%s",
+}}`
+
 MAIN_FILE :: "main.odin"
 MAIN_TEMPLATE :: `
 package %s

@@ -91,23 +91,17 @@ waitpid :: proc "contextless" (pid: Pid, status: ^u32, options: Wait_Options) ->
 	return Pid(ret), os.Errno(os.get_last_error())
 }
 
-popen :: proc(
-	cmd: string,
-	get_response := true,
-	read_size := 4096,
-) -> (
-	data: [dynamic]u8,
-	ok: bool,
-) {
+popen :: proc(cmd: string, get_response := true, read_size := 4096) -> (out: string, ok: bool) {
 	cmd_cstr := strings.clone_to_cstring(cmd)
 	defer delete(cmd_cstr)
 	file := _unix_popen(cmd_cstr, cstring("r"))
 
 	ok = file != nil
 
-	for ok && get_response {
-		data = make_dynamic_array_len([dynamic]u8, read_size)
+	if ok && get_response {
+		data := make([]u8, read_size)
 		cstr := libc.fgets(cast(^byte)&data[0], i32(read_size), file)
+		out = strings.clone_from_cstring(cstring(cstr))
 		ok = cstr != nil
 	}
 	_unix_pclose(file)

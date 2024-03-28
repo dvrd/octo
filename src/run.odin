@@ -7,6 +7,7 @@ import "libs:cmd"
 
 run_package :: proc() {
 	pwd := os.get_current_directory()
+
 	build_package()
 	bin_path :=
 		len(os.args) > 2 && os.args[2] == "--release" \

@@ -14,15 +14,15 @@ build_package :: proc() {
 	timer: time.Stopwatch
 	time.stopwatch_start(&timer)
 	pwd := os.get_current_directory()
-	pwd_info, err := os.stat(pwd)
-	catch(Errno(err))
+	pkg := get_config()
 
 	info(
 		fmt.tprintf(
-			"%s %s [version] (%s)",
+			"%s %s [%s] (%s)",
 			ansi.colorize("Compiling", {0, 210, 80}),
-			pwd_info.name,
-			pwd_info.fullpath,
+			pkg.name,
+			pkg.version,
+			pwd,
 		),
 	)
 

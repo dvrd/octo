@@ -12,26 +12,40 @@ add_package :: proc() {
 	using failz
 
 	catch(len(os.args) < 3, ADD_USAGE)
-	pkg_name := os.args[2]
-	catch(pkg_name == "help", ADD_USAGE)
+	new_dep_name := os.args[2]
+	catch(new_dep_name == "help", ADD_USAGE)
 	home := os.get_env("HOME")
 	pwd := os.get_current_directory()
+	pkg_config := get_config()
 
 	libs_path := filepath.join({pwd, "libs"})
 	if !os.is_dir(libs_path) {
 		catch(Errno(os.make_directory(libs_path)))
 	}
 
-	local_pkg_path := filepath.join({libs_path, pkg_name})
+	local_pkg_path := filepath.join({libs_path, new_dep_name})
 	if os.is_dir(local_pkg_path) {
 		info(
 			fmt.tprintf(
 				"%s `%s` package already in dependencies",
 				ansi.colorize("Found", {0, 210, 80}),
-				pkg_name,
+				new_dep_name,
 			),
 		)
 		return
+	}
+
+	for dep in pkg_config.deps {
+		if dep == new_dep_name {
+			info(
+				fmt.tprintf(
+					"%s `%s` package already in dependencies",
+					ansi.colorize("Found", {0, 210, 80}),
+					new_dep_name,
+				),
+			)
+			return
+		}
 	}
 
 	registry_path := filepath.join({home, REGISTRY_DIR})
@@ -39,22 +53,25 @@ add_package :: proc() {
 		catch(Errno(os.make_directory(registry_path)))
 	}
 
-	registry_pkg_path := filepath.join({registry_path, pkg_name})
+	registry_pkg_path := filepath.join({registry_path, new_dep_name})
 	if os.is_dir(registry_pkg_path) {
 		info(
 			fmt.tprintf(
 				"%s `%s` package to dependencies",
 				ansi.colorize("Adding", {0, 210, 80}),
-				pkg_name,
+				new_dep_name,
 			),
 		)
-		copy_dir(registry_pkg_path, libs_path)
+		copy_dir(registry_pkg_path, local_pkg_path)
+
+		append(&pkg_config.deps, new_dep_name)
+		update_config(pkg_config)
 	} else {
-		warn(msg = fmt.tprintf("Package `%s` not found in %s", pkg_name, purple("registry")))
+		warn(msg = fmt.tprintf("Package `%s` not found in %s", new_dep_name, purple("registry")))
 
 		odin_bin_path := cmd.find_program("odin")
 		odin_dir_path := odin_bin_path[:len(odin_bin_path) - len("/odin")]
-		shared_pkg_path := filepath.join({odin_dir_path, "shared", pkg_name})
+		shared_pkg_path := filepath.join({odin_dir_path, "shared", new_dep_name})
 		info(
 			fmt.tprintf(
 				"%s package in `%s`",
@@ -67,13 +84,16 @@ add_package :: proc() {
 				fmt.tprintf(
 					"%s `%s` package to dependencies",
 					ansi.colorize("Adding", {0, 210, 80}),
-					pkg_name,
+					new_dep_name,
 				),
 			)
-			catch(copy_dir(shared_pkg_path, local_pkg_path))
 			catch(copy_dir(shared_pkg_path, registry_pkg_path))
+			catch(copy_dir(shared_pkg_path, local_pkg_path))
+
+			append(&pkg_config.deps, new_dep_name)
+			update_config(pkg_config)
 		} else {
-			warn(msg = fmt.tprintf("Package `%s` not found in %s", pkg_name, purple("shared")))
+			warn(msg = fmt.tprintf("Package `%s` not found in %s", new_dep_name, purple("shared")))
 		}
 	}
 }
