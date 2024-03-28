@@ -11,7 +11,7 @@ remove_package :: proc() {
 
 	catch(len(os.args) < 3, REMOVE_USAGE)
 	pkg_config := get_config()
-	dep_name := os.args[2]
+	dep_owner, dep_name := filepath.split(os.args[2])
 	info(
 		fmt.tprintf(
 			"%s `%s` from dependencies",
@@ -42,9 +42,10 @@ remove_package :: proc() {
 
 	catch(remove_dir(local_pkg_path))
 
-	for i in 0 ..= len(pkg_config.deps) {
-		if pkg_config.deps[i] == dep_name {
-			unordered_remove(&pkg_config.deps, i)
+	for pkg_uri, version in pkg_config.dependencies {
+		server, owner, name := parse_dependency(pkg_uri)
+		if name == dep_name {
+			delete_key(&pkg_config.dependencies, pkg_uri)
 			break
 		}
 	}

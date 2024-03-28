@@ -6,10 +6,14 @@ import "core:os"
 import "libs:failz"
 
 Package :: struct {
-	name:    string,
-	owner:   string,
-	version: string,
-	deps:    [dynamic]string,
+	name:         string,
+	url:          string,
+	readme:       string,
+	description:  string,
+	version:      string,
+	license:      string,
+	keywords:     [dynamic]string,
+	dependencies: map[string]string,
 }
 
 get_config :: proc() -> ^Package {

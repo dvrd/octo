@@ -12,7 +12,8 @@ add_package :: proc() {
 	using failz
 
 	catch(len(os.args) < 3, ADD_USAGE)
-	new_dep_name := os.args[2]
+	catch(strings.count(os.args[2], "/") == 1, ADD_USAGE)
+	dep_owner, new_dep_name := filepath.split(os.args[2])
 	catch(new_dep_name == "help", ADD_USAGE)
 	home := os.get_env("HOME")
 	pwd := os.get_current_directory()
@@ -35,8 +36,9 @@ add_package :: proc() {
 		return
 	}
 
-	for dep in pkg_config.deps {
-		if dep == new_dep_name {
+	for pkg_uri, version in pkg_config.dependencies {
+		server, owner, name := parse_dependency(pkg_uri)
+		if name == new_dep_name {
 			info(
 				fmt.tprintf(
 					"%s `%s` package already in dependencies",
@@ -64,7 +66,7 @@ add_package :: proc() {
 		)
 		copy_dir(registry_pkg_path, local_pkg_path)
 
-		append(&pkg_config.deps, new_dep_name)
+		pkg_config.dependencies[filepath.join({"github.com", dep_owner, new_dep_name})] = "0.1.0"
 		update_config(pkg_config)
 	} else {
 		warn(msg = fmt.tprintf("Package `%s` not found in %s", new_dep_name, purple("registry")))
@@ -90,7 +92,8 @@ add_package :: proc() {
 			catch(copy_dir(shared_pkg_path, registry_pkg_path))
 			catch(copy_dir(shared_pkg_path, local_pkg_path))
 
-			append(&pkg_config.deps, new_dep_name)
+			pkg_config.dependencies[filepath.join({"github.com", dep_owner, new_dep_name})] =
+			"0.1.0"
 			update_config(pkg_config)
 		} else {
 			warn(msg = fmt.tprintf("Package `%s` not found in %s", new_dep_name, purple("shared")))

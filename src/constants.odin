@@ -5,7 +5,7 @@ REGISTRY_DIR :: "/.octo"
 USAGE :: `
 octo [v0.1.0]
 
-Usage: 
+Usage:
 
   init      - initialize a project in the current directory
   new       - create a new project
@@ -17,16 +17,16 @@ Usage:
   add       - add a dependency library to the project
 `
 
-NEW_USAGE :: `Usage: 
+NEW_USAGE :: `Usage:
   new <name> - create a new project
 `
 
-ADD_USAGE :: `Usage: 
-  add <pkg> - add a dependency library to the project
+ADD_USAGE :: `Usage:
+  add <owner>/<pkg> - add a dependency library to the project
 `
 
-REMOVE_USAGE :: `Usage: 
-  remove <pkg> - remove a dependency library from the project
+REMOVE_USAGE :: `Usage:
+  remove <owner>/<pkg> - remove a dependency library from the project
 `
 
 OLS_FILE :: "ols.json"
@@ -56,11 +56,17 @@ OLS_TEMPLATE :: `
 }
 `
 
-OCTO_CONFIG_FILE :: "octo.json"
+OCTO_CONFIG_FILE :: "octo.pkg"
 OCTO_CONFIG_TEMPLATE :: `{{
-    "name": "%s",
-    "owner": "%s",
-    "version": "%s",
+    name: "%s",
+    owner: "%s",
+    version: "%s",
+    description: "%s",
+    url: "https://%s/%s/%s",
+    readme: "",
+    license: "",
+    keywords: [],
+    dependencies: {{}}
 }}`
 
 MAIN_FILE :: "main.odin"

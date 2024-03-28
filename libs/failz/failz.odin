@@ -11,6 +11,7 @@ ERROR := ansi.colorize("  ", {220, 20, 60})
 WARNING := ansi.colorize("  ", {255, 210, 0})
 MESSAGE := ansi.colorize("  ", {0, 144, 255})
 DEBUG := ansi.colorize("  ", {204, 146, 255})
+PROMPT := ansi.colorize(" 󰠗 ", {0, 144, 255})
 
 purple :: proc(str: string) -> string {
 	return ansi.colorize(str, {204, 146, 255})

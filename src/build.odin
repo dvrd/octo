@@ -33,9 +33,12 @@ build_package :: proc() {
 	bin_path: string
 	if is_release {
 		bin_path = get_bin_path(pwd, "release")
-		cmd.launch(
-			{"odin", "build", "src", collections, fmt.tprintf("-out:%s", bin_path), "-o:speed"},
-		)
+		if cmd.launch(
+			   {"odin", "build", "src", collections, fmt.tprintf("-out:%s", bin_path), "-o:speed"},
+		   ) !=
+		   .Ok {
+			return
+		}
 	} else {
 		bin_path = get_bin_path(pwd)
 		cmd.launch(

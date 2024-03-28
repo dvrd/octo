@@ -1,0 +1,11 @@
+{
+    name: "octo",
+    owner: "Dan<dan@devoured.io>",
+    version: "0.1.0",
+    description: "Bespoke package manager for the Odin lang",
+    url: "https://github.com/dvrd/octo",
+    readme: "",
+    license: "",
+    keywords: [],
+    dependencies: {}
+}
