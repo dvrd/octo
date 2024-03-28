@@ -9,7 +9,6 @@ import "libs:ansi"
 import "libs:cmd"
 import "libs:failz"
 
-@(init)
 install_package :: proc() {
 	using failz
 
@@ -20,9 +19,14 @@ install_package :: proc() {
 	bin_path := get_bin_path(pwd, "release")
 	target_path := "/usr/local/bin"
 
+	if os.exists(filepath.join({target_path, pwd_info.name})) {
+		warn(msg = "The package is already installed")
+		return
+	}
+
 	info(
 		fmt.tprintf(
-			"%s `%s` release target to `%s`",
+			"%s `%s` release build [target = %s]",
 			ansi.colorize("Installing", {0, 210, 80}),
 			pwd_info.name,
 			target_path,

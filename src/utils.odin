@@ -9,6 +9,11 @@ import "libs:cmd"
 import "libs:failz"
 
 info :: proc(msg: string) {fmt.println(failz.INFO, msg)}
+debug :: proc(msg: string) {
+	when ODIN_DEBUG {
+		fmt.println(failz.DEBUG, msg)
+	}
+}
 
 bold :: proc(str: string) -> string {
 	return strings.concatenate({ansi.BOLD, str, ansi.END})

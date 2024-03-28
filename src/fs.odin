@@ -24,6 +24,27 @@ write_to_file :: proc(path: string, content: string) {
 	catch(Errno(err))
 }
 
+copy_file_with_mode :: proc(from, to: string, mode: os.File_Mode) -> failz.Error {
+	file_handle, errno := os.open(to, os.O_CREATE | os.O_RDWR, int(mode))
+	if errno != os.ERROR_NONE {
+		return failz.SystemError{.FileOpen, os.get_last_error_string()}
+	}
+	defer os.close(file_handle)
+
+	file_contents, success := os.read_entire_file(from)
+	if !success {
+		return failz.SystemError{.FileRead, os.get_last_error_string()}
+	}
+	defer delete(file_contents)
+
+	_, errno = os.write(file_handle, file_contents)
+	if errno != os.ERROR_NONE {
+		return failz.SystemError{.FileOpen, os.get_last_error_string()}
+	}
+
+	return nil
+}
+
 read_dir :: proc(
 	dir_name: string,
 	allocator := context.temp_allocator,
@@ -42,47 +63,61 @@ read_dir :: proc(
 	return fis, 0
 }
 
-copy_file_with_mode :: proc(from, to: string, mode: os.File_Mode) -> failz.Error {
-	file_handle, errno := os.open(to, os.O_CREATE | os.O_RDWR, int(mode))
-	if errno != os.ERROR_NONE {
-		return failz.Errno(errno)
-	}
-	file_contents, success := os.read_entire_file(from)
-	if !success {
-		return failz.SystemError{.FileIO, os.get_last_error_string()}
-	}
-	defer delete(file_contents)
-
-	_, errno = os.write(file_handle, file_contents)
-	if errno != os.ERROR_NONE {
-		return failz.Errno(errno)
-	}
-	defer os.close(file_handle)
-
-	return nil
-}
-
 copy_dir :: proc(from, to: string) -> failz.Error {
 	using failz
+	debug(fmt.tprint("Copying directory:", from, "to:", to))
 
 	files, errno := read_dir(from)
 	if errno != os.ERROR_NONE {
-		return failz.Errno(errno)
+		return failz.SystemError{.DirectoryRead, os.get_last_error_string()}
 	}
 
 	if !os.is_dir(to) {
-		os.make_directory(to)
+		errno = os.make_directory(to)
+		if errno != os.ERROR_NONE {
+			return failz.SystemError{.DirectoryCreate, os.get_last_error_string()}
+		}
 	}
 
 	for file in files {
 		copy_to := filepath.join({to, file.name})
-		defer delete(copy_to)
 
 		if file.is_dir {
 			copy_dir(file.fullpath, copy_to) or_return
+			continue
 		}
 
 		copy_file_with_mode(from = file.fullpath, to = copy_to, mode = file.mode) or_return
+	}
+
+	return nil
+}
+
+remove_dir :: proc(dir: string) -> failz.Error {
+	using failz
+
+	files, errno := read_dir(dir)
+	if errno != os.ERROR_NONE {
+		return failz.SystemError{.DirectoryRead, os.get_last_error_string()}
+	}
+
+	for file in files {
+		if file.is_dir {
+			remove_dir(file.fullpath) or_return
+			continue
+		}
+
+		debug(fmt.tprint("Removing file:", file.fullpath))
+		if os.remove(file.fullpath) != os.ERROR_NONE {
+			debug(os.get_last_error_string())
+			return failz.SystemError{.FileRemove, os.get_last_error_string()}
+		}
+	}
+
+	debug(fmt.tprint("Removing directory:", dir))
+	if os.remove(dir) != os.ERROR_NONE {
+		debug(os.get_last_error_string())
+		return failz.SystemError{.DirectoryRemove, os.get_last_error_string()}
 	}
 
 	return nil

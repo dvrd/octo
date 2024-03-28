@@ -25,6 +25,10 @@ ADD_USAGE :: `Usage:
   add <pkg> - add a dependency library to the project
 `
 
+REMOVE_USAGE :: `Usage: 
+  remove <pkg> - remove a dependency library from the project
+`
+
 OLS_FILE :: "ols.json"
 OLS_TEMPLATE :: `
 {

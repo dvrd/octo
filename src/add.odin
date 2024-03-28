@@ -8,7 +8,6 @@ import "libs:ansi"
 import "libs:cmd"
 import "libs:failz"
 
-@(init)
 add_package :: proc() {
 	using failz
 
@@ -32,7 +31,7 @@ add_package :: proc() {
 				pkg_name,
 			),
 		)
-		os.exit(0)
+		return
 	}
 
 	registry_path := filepath.join({home, REGISTRY_DIR})
@@ -49,9 +48,9 @@ add_package :: proc() {
 				pkg_name,
 			),
 		)
-		copy_dir(registry_pkg_path, local_pkg_path)
+		copy_dir(registry_pkg_path, libs_path)
 	} else {
-		warn(msg = fmt.tprintf("Package `%s` not found in registry", pkg_name))
+		warn(msg = fmt.tprintf("Package `%s` not found in %s", pkg_name, purple("registry")))
 
 		odin_bin_path := cmd.find_program("odin")
 		odin_dir_path := odin_bin_path[:len(odin_bin_path) - len("/odin")]
@@ -71,12 +70,10 @@ add_package :: proc() {
 					pkg_name,
 				),
 			)
-
 			catch(copy_dir(shared_pkg_path, local_pkg_path))
 			catch(copy_dir(shared_pkg_path, registry_pkg_path))
 		} else {
-			warn(msg = fmt.tprintf("Package `%s` not found in shared", pkg_name))
+			warn(msg = fmt.tprintf("Package `%s` not found in %s", pkg_name, purple("shared")))
 		}
 	}
-
 }

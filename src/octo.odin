@@ -27,6 +27,8 @@ main :: proc() {
 		install_package()
 	case "add":
 		add_package()
+	case "remove":
+		remove_package()
 	case:
 		fmt.println(USAGE)
 	}

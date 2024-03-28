@@ -10,15 +10,22 @@ INFO := ansi.bold(ansi.colorize("  ", {80, 150, 225}))
 ERROR := ansi.colorize("  ", {220, 20, 60})
 WARNING := ansi.colorize("  ", {255, 210, 0})
 MESSAGE := ansi.colorize("  ", {0, 144, 255})
+DEBUG := ansi.colorize("  ", {204, 146, 255})
 
 purple :: proc(str: string) -> string {
-	return ansi.colorize(str, {147, 112, 219})
+	return ansi.colorize(str, {204, 146, 255})
 }
 
 AllocError :: mem.Allocator_Error
 
 ErrorKind :: enum {
-	FileIO,
+	FileOpen,
+	FileRead,
+	FileWrite,
+	FileRemove,
+	DirectoryCreate,
+	DirectoryRead,
+	DirectoryRemove,
 }
 
 SystemError :: struct {
@@ -182,7 +189,7 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 		fmt.sbprint(&sb, MESSAGE, e)
 		fmt.eprintln(strings.to_string(sb))
 	case SystemError:
-		fmt.sbprint(&sb, MESSAGE, e.msg)
+		fmt.sbprint(&sb, MESSAGE, purple(fmt.tprintf("[%v]", e.kind)), e.msg)
 		fmt.eprintln(strings.to_string(sb))
 	case Errno:
 		if e == .ERROR_NONE {return}
