@@ -25,10 +25,10 @@ add_package :: proc() {
 
 	local_pkg_path := filepath.join({libs_path, pkg_name})
 	if os.is_dir(local_pkg_path) {
-		fmt.println(
+		info(
 			fmt.tprintf(
-				"%s `%s` package to dependencies",
-				ansi.colorize("Adding", {0, 210, 80}),
+				"%s `%s` package already in dependencies",
+				ansi.colorize("Found", {0, 210, 80}),
 				pkg_name,
 			),
 		)
@@ -40,8 +40,8 @@ add_package :: proc() {
 		catch(Errno(os.make_directory(registry_path)))
 	}
 
-	pkg_path := filepath.join({registry_path, pkg_name})
-	if os.is_dir(pkg_path) {
+	registry_pkg_path := filepath.join({registry_path, pkg_name})
+	if os.is_dir(registry_pkg_path) {
 		info(
 			fmt.tprintf(
 				"%s `%s` package to dependencies",
@@ -49,7 +49,7 @@ add_package :: proc() {
 				pkg_name,
 			),
 		)
-		copy_dir(pkg_path, local_pkg_path)
+		copy_dir(registry_pkg_path, local_pkg_path)
 	} else {
 		warn(msg = fmt.tprintf("Package `%s` not found in registry", pkg_name))
 
@@ -71,7 +71,9 @@ add_package :: proc() {
 					pkg_name,
 				),
 			)
-			copy_dir(shared_pkg_path, local_pkg_path)
+
+			catch(copy_dir(shared_pkg_path, local_pkg_path))
+			catch(copy_dir(shared_pkg_path, registry_pkg_path))
 		} else {
 			warn(msg = fmt.tprintf("Package `%s` not found in shared", pkg_name))
 		}
