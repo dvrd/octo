@@ -1,0 +1,33 @@
+package octo
+
+
+import "core:fmt"
+import "core:os"
+import "core:path/filepath"
+import "core:strings"
+import "libs:ansi"
+import "libs:cmd"
+import "libs:failz"
+
+@(init)
+install_package :: proc() {
+	using failz
+
+	pwd := os.get_current_directory()
+	pwd_info, err := os.stat(pwd)
+	catch(Errno(err))
+
+	bin_path := get_bin_path(pwd, "release")
+	target_path := "/usr/local/bin"
+
+	info(
+		fmt.tprintf(
+			"%s `%s` release target to `%s`",
+			ansi.colorize("Installing", {0, 210, 80}),
+			pwd_info.name,
+			target_path,
+		),
+	)
+
+	cmd.launch({"sudo", "ln", "-s", bin_path, target_path})
+}

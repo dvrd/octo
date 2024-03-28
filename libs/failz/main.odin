@@ -6,10 +6,10 @@ import "core:os"
 import "core:strings"
 import "libs:ansi"
 
-INFO := ansi.bold(ansi.colorize(" 󰋼 ", {80, 150, 225}))
-ERROR := ansi.colorize("  ", {220, 20, 60})
+INFO := ansi.bold(ansi.colorize("  ", {80, 150, 225}))
+ERROR := ansi.colorize("  ", {220, 20, 60})
 WARNING := ansi.colorize("  ", {255, 210, 0})
-MESSAGE := ansi.colorize(" 󱥂 ", {0, 144, 255})
+MESSAGE := ansi.colorize("  ", {0, 144, 255})
 
 purple :: proc(str: string) -> string {
 	return ansi.colorize(str, {147, 112, 219})
@@ -18,7 +18,7 @@ purple :: proc(str: string) -> string {
 AllocError :: mem.Allocator_Error
 
 ErrorKind :: enum {
-	File,
+	FileIO,
 }
 
 SystemError :: struct {
