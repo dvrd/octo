@@ -32,6 +32,7 @@ update_config :: proc(pkg: ^Package) {
 
 	opts: json.Marshal_Options
 	opts.pretty = true
+	opts.use_spaces = true
 	data, err := json.marshal(pkg^, opts)
 	catch(err != nil, "Failed to parse package struct")
 
