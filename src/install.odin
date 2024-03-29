@@ -33,5 +33,8 @@ install_package :: proc() {
 		),
 	)
 
-	cmd.launch({"sudo", "ln", "-s", bin_path, target_path})
+	catch(
+		cmd.launch({"sudo", "ln", "-s", bin_path, target_path}) != .Ok,
+		"Failed to install binary to system",
+	)
 }

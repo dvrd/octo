@@ -204,6 +204,13 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 	if err != nil && should_exit {os.exit(1)}
 }
 
+bail :: proc(did_fail: bool, msg: string) {
+	if did_fail {
+		fmt.println(msg)
+		os.exit(1)
+	}
+}
+
 warn :: proc(err: Error = true, msg := "") {
 	#partial switch e in err {
 	case AllocError:

@@ -33,24 +33,36 @@ build_package :: proc() {
 	bin_path: string
 	if is_release {
 		bin_path = get_bin_path(pwd, "release")
-		if cmd.launch(
-			   {"odin", "build", "src", collections, fmt.tprintf("-out:%s", bin_path), "-o:speed"},
-		   ) !=
-		   .Ok {
-			return
-		}
+		catch(
+			cmd.launch(
+				 {
+					"odin",
+					"build",
+					"src",
+					collections,
+					fmt.tprintf("-out:%s", bin_path),
+					"-o:speed",
+				},
+			) !=
+			.Ok,
+			"Failed to build binary release target",
+		)
 	} else {
 		bin_path = get_bin_path(pwd)
-		cmd.launch(
-			 {
-				"odin",
-				"build",
-				"src",
-				collections,
-				"-use-separate-modules",
-				fmt.tprintf("-out:%s", bin_path),
-				"-debug",
-			},
+		catch(
+			cmd.launch(
+				 {
+					"odin",
+					"build",
+					"src",
+					collections,
+					"-use-separate-modules",
+					fmt.tprintf("-out:%s", bin_path),
+					"-debug",
+				},
+			) !=
+			.Ok,
+			"Failed to build binary debug target",
 		)
 	}
 

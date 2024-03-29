@@ -1,5 +1,7 @@
 package octo
 
+import "base:runtime"
+import "core:c"
 import "core:c/libc"
 import "core:fmt"
 import "core:os"
@@ -8,6 +10,27 @@ import "core:strings"
 import "libs:ansi"
 import "libs:cmd"
 import "libs:failz"
+
+when ODIN_OS == .Darwin {
+	foreign import lib "system:System.framework"
+} else when ODIN_OS == .Linux {
+	foreign import lib "system:c"
+}
+foreign lib {
+	@(link_name = "setenv")
+	_unix_setenv :: proc(key: cstring, value: cstring, overwrite: c.int) -> c.int ---
+}
+
+set_env :: proc(key, value: string) -> failz.Errno {
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
+	key_cstring := strings.clone_to_cstring(key, context.temp_allocator)
+	value_cstring := strings.clone_to_cstring(value, context.temp_allocator)
+	res := _unix_setenv(key_cstring, value_cstring, 1)
+	if res < 0 {
+		return failz.Errno(os.get_last_error())
+	}
+	return failz.Errno(os.ERROR_NONE)
+}
 
 info :: proc(msg: string) {fmt.println(failz.INFO, msg)}
 
@@ -80,33 +103,53 @@ parse_dependency :: proc(uri: string) -> (string, string, string) {
 
 make_octo_file :: proc(proj_path: string, proj_name: string) -> string {
 	using failz
+	using strings
 
 	octo_config_path := filepath.join({proj_path, OCTO_CONFIG_FILE})
 	if os.exists(octo_config_path) {
 		warn(msg = fmt.tprintf("Config %s already exists", bold(OCTO_CONFIG_FILE)))
 	} else {
 		user_email, ok := cmd.popen("git config --global user.email", read_size = 128)
-		if ok {user_email = strings.trim_space(user_email)}
+		if ok {user_email = trim_space(user_email)}
+		defer delete(user_email)
 
 		user_name: string
 		user_name, ok = cmd.popen("git config --global user.name", read_size = 128)
-		if ok {user_name = strings.trim_space(user_name)}
+		if ok {user_name = trim_space(user_name)}
+		defer delete(user_name)
 
-		description: strings.Builder
+		description: Builder
 		prompt(&description, "Enter a description: ")
+		defer builder_destroy(&description)
 
-		git_server: strings.Builder
-		prompt(
-			&git_server,
-			fmt.tprintf(
-				"Enter your git server: %s",
-				ansi.colorize("(default: github)", {120, 120, 120}),
-			),
-			"github.com",
-		)
+		git_server: Builder
+		env_git_server: string
+		found: bool
+		defer builder_destroy(&git_server)
+		env_git_server, found = os.lookup_env("OCTO_GIT_SERVER")
+		if found {
+			write_string(&git_server, env_git_server)
+		} else {
+			prompt(
+				&git_server,
+				fmt.tprintf(
+					"Enter your git server: %s",
+					ansi.colorize("(default: github)", {120, 120, 120}),
+				),
+				"github",
+			)
+			write_string(&git_server, ".com")
+		}
 
-		git_user: strings.Builder
-		prompt(&git_user, "Enter your git user: ")
+		git_user: Builder
+		env_git_user: string
+		defer builder_destroy(&git_user)
+		env_git_user, found = os.lookup_env("OCTO_GIT_USER")
+		if found {
+			write_string(&git_server, env_git_user)
+		} else {
+			prompt(&git_user, "Enter your git user: ")
+		}
 
 		owner := ok ? fmt.tprintf("%s<%s>", user_name, user_email) : ""
 		write_to_file(
@@ -116,9 +159,9 @@ make_octo_file :: proc(proj_path: string, proj_name: string) -> string {
 				proj_name,
 				owner,
 				"0.1.0",
-				strings.to_string(description),
-				strings.to_string(git_server),
-				strings.to_string(git_user),
+				to_string(description),
+				to_string(git_server),
+				to_string(git_user),
 				proj_name,
 			),
 		)

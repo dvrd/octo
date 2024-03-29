@@ -12,14 +12,15 @@ StatusCode :: enum {
 }
 
 ERROR :: "\x1B[31m\x1b[0m"
-WARNING :: "\x1B[38;2;255;210;0m\x1b[0m"
+WARNING :: " \x1B[38;2;255;210;0m\x1b[0m "
 
 launch :: proc(args: []string) -> StatusCode {
 	wpid: Pid
 	status: u32
 
-	cmd_path, ok := find_program(args[0]);if !ok {
-		fmt.eprintln(WARNING, "command not found:", args[0])
+	cmd_path, ok := find_program(args[0])
+	if !ok {
+		fmt.eprintln(WARNING, "Command not found:", args[0])
 		return .Error
 	}
 
