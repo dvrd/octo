@@ -9,7 +9,7 @@ import "libs:failz"
 remove_package :: proc() {
 	using failz
 
-	catch(len(os.args) < 3, REMOVE_USAGE)
+	bail(len(os.args) < 3, REMOVE_USAGE)
 	pkg_config := get_config()
 	dep_owner, dep_name := filepath.split(os.args[2])
 	info(
@@ -20,7 +20,7 @@ remove_package :: proc() {
 		),
 	)
 
-	catch(dep_name == "help", REMOVE_USAGE)
+	bail(dep_name == "help", REMOVE_USAGE)
 	pwd := os.get_current_directory()
 
 	libs_path := filepath.join({pwd, "libs"})

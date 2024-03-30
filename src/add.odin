@@ -11,8 +11,8 @@ import "libs:failz"
 add_package :: proc() {
 	using failz
 
-	catch(len(os.args) < 3, ADD_USAGE)
-	catch(strings.count(os.args[2], "/") != 1, ADD_USAGE)
+	bail(len(os.args) < 3, ADD_USAGE)
+	bail(strings.count(os.args[2], "/") != 1, ADD_USAGE)
 	new_dep_owner, new_dep_name := filepath.split(os.args[2])
 	bail(new_dep_name == "help", ADD_USAGE)
 	bail(len(new_dep_owner) == 0, ADD_USAGE)

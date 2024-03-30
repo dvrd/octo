@@ -45,7 +45,7 @@ update_config :: proc(pkg: ^Package) {
 octo :: proc() {
 	using failz
 
-	catch(len(os.args) < 2, USAGE)
+	bail(len(os.args) < 2, USAGE)
 	command := os.args[1]
 	switch command {
 	case "new":
