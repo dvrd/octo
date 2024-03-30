@@ -1,5 +1,7 @@
 package octo
 
+import "core:bytes"
+import "core:c"
 import "core:fmt"
 import "core:os"
 import "core:path/filepath"
@@ -7,6 +9,30 @@ import "core:strings"
 import "libs:ansi"
 import "libs:cmd"
 import "libs:failz"
+
+foreign import lib "system:System.framework"
+foreign lib {
+	@(link_name = "symlink")
+	_unix_symlink :: proc(name1: [^]c.char, name2: [^]c.char) -> c.int ---
+}
+
+link :: proc(src: string, target: string) -> bool {
+	using failz
+
+	if os.is_dir(src) || os.is_file(target) {
+		return false
+	}
+
+	src := transmute([]c.char)src
+	target := transmute([]c.char)target
+
+	if _unix_symlink(raw_data(src), raw_data(target)) == -1 {
+		warn(Errno(os.get_last_error()), fmt.tprintf("symlink:"))
+		return false
+	}
+
+	return true
+}
 
 write_to_file :: proc(path: string, content: string) {
 	using failz
