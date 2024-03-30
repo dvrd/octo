@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:os"
 import "libs:ansi"
 import "libs:cmd"
+import "libs:failz"
 
 run_package :: proc() {
 	pwd := os.get_current_directory()
@@ -14,5 +15,5 @@ run_package :: proc() {
 		? get_bin_path(pwd, "release") \
 		: get_bin_path(pwd)
 	info(fmt.tprintf("%s `%s`", ansi.colorize("Running", {0, 210, 80}), bin_path))
-	cmd.launch({bin_path})
+	failz.catch(!cmd.launch({bin_path}), "Failed to run the package")
 }

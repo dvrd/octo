@@ -1,10 +1,9 @@
-package command
+package cmd
 
-import "core:c"
 import "core:fmt"
-import "core:mem"
 import "core:os"
 import "core:strings"
+import "libs:failz"
 
 find_program :: proc(target: string) -> (string, bool) #optional_ok {
 	sb := strings.builder_make()
@@ -12,29 +11,30 @@ find_program :: proc(target: string) -> (string, bool) #optional_ok {
 	dirs := strings.split(env_path, ":")
 
 	if len(dirs) == 0 {
-		fmt.eprintln(ERROR, "missing $PATH environment variable")
+		failz.warn(msg = "missing $path environment variable")
 		return "", false
 	}
 
 	for dir in dirs {
+		if !os.is_dir(dir) {
+			failz.warn(msg = "corrupt $path environment variable")
+			failz.warn(msg = fmt.tprintf("found (%s) is not a directory", dir))
+			return "", false
+		}
+
 		fd, err := os.open(dir)
 		defer os.close(fd)
 
 		if err != os.ERROR_NONE {
+			failz.warn(failz.Errno(err), fmt.tprintf("found issue reading directory (%s): ", dir))
 			continue
 		}
 
 		fis: []os.File_Info
 		defer os.file_info_slice_delete(fis)
 
-		fis, err = os.read_dir(fd, -1);if err != os.ERROR_NONE {
-			fmt.eprintfln(
-				"%s found issue reading directory (%s): %s",
-				WARNING,
-				dir,
-				os.get_last_error_string(),
-			)
-		}
+		fis, err = os.read_dir(fd, -1)
+		failz.warn(failz.Errno(err), fmt.tprintf("found issue reading directory (%s): ", dir))
 
 		for fi in fis {
 			if fi.name == target {

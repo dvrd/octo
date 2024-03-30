@@ -218,7 +218,7 @@ warn :: proc(err: Error = true, msg := "") {
 	case SystemError:
 		fmt.eprintln(WARNING, msg, e.msg)
 	case Errno:
-		if e != .ERROR_NONE {fmt.eprintln(WARNING, msg, os.get_last_error())}
+		if e != .ERROR_NONE {fmt.eprintln(WARNING, msg, os.get_last_error_string())}
 	case bool:
 		if e {fmt.eprintln(WARNING, msg)}
 	}

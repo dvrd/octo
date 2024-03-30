@@ -17,9 +17,22 @@ install_package :: proc() {
 	catch(Errno(err))
 
 	bin_path := get_bin_path(pwd, "release")
-	target_path := "/usr/local/bin"
+	if !os.exists(bin_path) {
+		build_package()
+	}
 
-	if os.exists(filepath.join({target_path, pwd_info.name})) {
+	home_path := os.get_env("HOME")
+	octo_registry_path := filepath.join({home_path, REGISTRY_DIR})
+	if !os.is_dir(octo_registry_path) {
+		catch(Errno(os.make_directory(octo_registry_path)))
+	}
+
+	octo_bin_path := filepath.join({octo_registry_path, "bin"})
+	if !os.is_dir(octo_bin_path) {
+		catch(Errno(os.make_directory(octo_bin_path)))
+	}
+
+	if os.exists(filepath.join({octo_bin_path, pwd_info.name})) {
 		warn(msg = "The package is already installed")
 		return
 	}
@@ -29,12 +42,18 @@ install_package :: proc() {
 			"%s `%s` release build [target = %s]",
 			ansi.colorize("Installing", {0, 210, 80}),
 			pwd_info.name,
-			target_path,
+			octo_bin_path,
 		),
 	)
 
-	catch(
-		cmd.launch({"sudo", "ln", "-s", bin_path, target_path}) != .Ok,
-		"Failed to install binary to system",
+	catch(!cmd.launch({"ln", "-s", bin_path, octo_bin_path}), "Failed to install binary to system")
+
+	info(
+		fmt.tprintf(
+			"%s installation",
+			ansi.colorize("Successful", {0, 210, 80}),
+			pwd_info.name,
+			octo_bin_path,
+		),
 	)
 }

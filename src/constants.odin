@@ -1,6 +1,6 @@
 package octo
 
-REGISTRY_DIR :: "/.octo"
+REGISTRY_DIR :: ".octo"
 
 USAGE :: `
 octo [v0.1.0]
