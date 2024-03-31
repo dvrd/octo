@@ -39,9 +39,7 @@ add_package :: proc() {
 	}
 
 	libs_path := filepath.join({pwd, "libs"})
-	if !os.is_dir(libs_path) {
-		catch(Errno(os.make_directory(libs_path)))
-	}
+	if !os.is_dir(libs_path) do catch(Errno(os.make_directory(libs_path)))
 
 	local_pkg_path := filepath.join({libs_path, new_pkg_name})
 	if os.is_dir(local_pkg_path) {
@@ -53,23 +51,15 @@ add_package :: proc() {
 		return
 	}
 
-	for pkg_uri, version in pkg_config.dependencies {
-		server, owner, name, success := parse_dependency(pkg_uri)
-		catch(!success, "Corrupt package uri")
-		if name == new_pkg_name {
-			info(
-				"%s `%s` package already in dependencies",
-				ansi.colorize("Found", {0, 210, 80}),
-				new_pkg_name,
-			)
-			return
-		}
-	}
+	bail(
+		contains_dependency(pkg_config, new_pkg_name),
+		"%s `%s` package already in dependencies",
+		ansi.colorize("Found", {0, 210, 80}),
+		new_pkg_name,
+	)
 
 	registry_path := filepath.join({home, REGISTRY_DIR})
-	if !os.is_dir(registry_path) {
-		catch(Errno(os.make_directory(registry_path)))
-	}
+	if !os.is_dir(registry_path) do catch(Errno(os.make_directory(registry_path)))
 
 	registry_pkg_path := filepath.join({registry_path, new_pkg_name})
 	if os.is_dir(registry_pkg_path) {
@@ -78,55 +68,13 @@ add_package :: proc() {
 			ansi.colorize("Adding", {0, 210, 80}),
 			new_pkg_name,
 		)
-
-		_, err := copy_dir(
-			registry_pkg_path,
-			local_pkg_path,
-			{"odin", "a", "lib", "o", "dll", "dynlib"},
-		)
-		catch(err)
-
-		registry_pkg_config_path := filepath.join({registry_pkg_path, OCTO_CONFIG_FILE})
-		if !os.exists(registry_pkg_config_path) {
-			registry_pkg_config_path = filepath.join({registry_pkg_path, OPM_CONFIG_FILE})
-		}
-		if !os.exists(registry_pkg_config_path) {
-			debug("Missing config file in new package")
-			debug("Creating configuration for new package")
-			make_octo_file(registry_pkg_path, new_pkg_name)
-		}
-
-		new_pkg_config_raw_data, success_read_file := os.read_entire_file(registry_pkg_config_path)
-		catch(!success_read_file, "Could not open pkg registry config")
-
-		new_pkg_config: Package
-		catch(json.unmarshal(new_pkg_config_raw_data, &new_pkg_config))
-
-		server, owner, name, success_parse := parse_dependency(new_pkg_config.url)
-		catch(!success_parse, "Corrupt package uri")
-
-		new_pkg_config_uri := filepath.join({server, owner, name})
-		info("new dependency uri: %s", new_pkg_config_uri)
-		pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
-		info("Updating config file...")
-		update_config(pkg_config)
 	} else {
 		catch(
 			len(new_pkg_info) == 1,
 			fmt.tprintf("Package `%s` not found in %s", new_pkg_name, purple("registry")),
 		)
 
-		if len(new_pkg_info) == 2 {
-			env_server, found := os.lookup_env("OCTO_GIT_SERVER")
-			if found {
-				new_pkg_server = env_server
-			} else {
-				debug(
-					"No git server specified (OCTO_GIT_SERVER is unset), using default (github.com)",
-				)
-				new_pkg_server = "github.com"
-			}
-		}
+		if len(new_pkg_info) == 2 do new_pkg_server = get_git_server()
 
 		ok := cmd.launch(
 			strings.split(
@@ -141,35 +89,35 @@ add_package :: proc() {
 			),
 		)
 		catch(!ok, "Could not clone package")
-		_, err := copy_dir(
-			registry_pkg_path,
-			local_pkg_path,
-			{"odin", "a", "lib", "o", "dll", "dynlib"},
-		)
-		catch(err)
-
-		registry_pkg_config_path := filepath.join({registry_pkg_path, OCTO_CONFIG_FILE})
-		if !os.exists(registry_pkg_config_path) {
-			registry_pkg_config_path = filepath.join({registry_pkg_path, OPM_CONFIG_FILE})
-		}
-		if !os.exists(registry_pkg_config_path) {
-			debug("Missing config file in new package")
-			debug("Creating configuration for new package")
-			make_placeholder_octo_file(
-				registry_pkg_path,
-				new_pkg_server,
-				new_pkg_owner,
-				new_pkg_name,
-			)
-		}
-
-		new_pkg_config_raw_data, success := os.read_entire_file(registry_pkg_config_path)
-		catch(!success, "Could not open pkg registry config")
-		new_pkg_config: Package
-		catch(json.unmarshal(new_pkg_config_raw_data, &new_pkg_config))
-
-		new_pkg_config_uri := filepath.join({new_pkg_server, new_pkg_owner, new_pkg_name})
-		pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
-		update_config(pkg_config)
 	}
+
+	update_dependencies(registry_pkg_path, local_pkg_path)
+}
+
+get_git_server :: proc() -> string {
+	env_server, found := os.lookup_env("OCTO_GIT_SERVER")
+	if found do return env_server
+	debug("No git server specified (OCTO_GIT_SERVER is unset), using default (github.com)")
+	return "github.com"
+}
+
+update_dependencies :: proc(registry_pkg_path, local_pkg_path: string) {
+	_, err := copy_dir(
+		registry_pkg_path,
+		local_pkg_path,
+		{"odin", "a", "lib", "o", "dll", "dynlib"},
+	)
+	catch(err)
+
+	new_pkg_config: Package
+	read_config(&new_pkg_config, registry_pkg_path)
+
+	server, owner, name, success_parse := parse_dependency(new_pkg_config.url)
+	catch(!success_parse, "Corrupt package uri")
+
+	new_pkg_config_uri := filepath.join({server, owner, name})
+	info("new dependency uri: %s", new_pkg_config_uri)
+	pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
+	info("Updating config file...")
+	update_config(pkg_config)
 }

@@ -94,7 +94,7 @@ read_dir :: proc(
 	return fis, nil
 }
 
-FORBIDDEN_DIRS :: []string{".git", ".github", "examples", "build"}
+FORBIDDEN_DIRS :: []string{".git", ".github", "examples", "build", "libs"}
 copy_dir :: proc(
 	from, to: string,
 	allowed_filetypes: []string = {},
