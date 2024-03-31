@@ -206,7 +206,15 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 
 	#partial switch e in err {
 	case AllocError:
+		if e == nil {return}
 		fmt.sbprint(&sb, MESSAGE, e)
+		fmt.eprintln(strings.to_string(sb))
+	case UnmarshalError:
+		if e == nil {return}
+		switch ue in e {
+		case json.Error, json.Unmarshal_Data_Error, json.Unsupported_Type_Error:
+			fmt.sbprint(&sb, MESSAGE, ue)
+		}
 		fmt.eprintln(strings.to_string(sb))
 	case SystemError:
 		fmt.sbprint(&sb, MESSAGE, purple(fmt.tprintf("[%v]", e.kind)), e.msg)

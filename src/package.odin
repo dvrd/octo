@@ -2,9 +2,9 @@ package octo
 
 import "core:encoding/json"
 import "core:fmt"
-import "core:strings"
 import "core:os"
 import "core:path/filepath"
+import "core:strings"
 import "libs:failz"
 
 Package :: struct {

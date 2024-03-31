@@ -9,12 +9,12 @@ import "libs:failz"
 remove_package :: proc() {
 	using failz
 
-	bail(len(os.args) < 3, REMOVE_USAGE)
-	pkg_config := get_config()
-	dep_owner, dep_name := filepath.split(os.args[2])
+	if len(os.args) < 3 do fmt.println(REMOVE_USAGE)
+	dep_name := os.args[2]
+	if dep_name == "help" do fmt.println(REMOVE_USAGE)
+
 	info("%s `%s` from dependencies", ansi.colorize("Removing", {0, 210, 80}), dep_name)
 
-	bail(dep_name == "help", REMOVE_USAGE)
 	pwd := os.get_current_directory()
 
 	libs_path := filepath.join({pwd, "libs"})
@@ -30,6 +30,7 @@ remove_package :: proc() {
 
 	catch(remove_dir(local_pkg_path))
 
+	pkg_config := get_config()
 	for pkg_uri, version in pkg_config.dependencies {
 		server, owner, name, success := parse_dependency(pkg_uri)
 		catch(!success, "Corrupt package uri")

@@ -11,8 +11,8 @@ import "libs:failz"
 add_package :: proc() {
 	using failz
 
-	bail(len(os.args) < 3, ADD_USAGE)
-	bail(os.args[2] == "help", ADD_USAGE)
+	if len(os.args) < 3 do fmt.println(ADD_USAGE)
+	if os.args[2] == "help" do fmt.println(ADD_USAGE)
 
 	home, found := os.lookup_env("HOME")
 	catch(!found, "HOME env variable not set")
@@ -77,18 +77,12 @@ update_dependencies :: proc(new_pkg_name, registry_pkg_path, local_pkg_path: str
 	info("%s package configuration...", ansi.colorize("Reading", {0, 210, 80}))
 	new_pkg_config: Package
 	read_config(&new_pkg_config, registry_pkg_path)
+	info("%s root folder for package...", ansi.colorize("Searching", {0, 210, 80}))
 	if new_pkg_config.root != "" {
 		registry_pkg_path = filepath.join({registry_pkg_path, new_pkg_config.root})
 	} else {
 		new_pkg_root: strings.Builder
-		prompt(
-			sb = &new_pkg_root,
-			msg = fmt.tprint(
-				"Enter the root folder of the package: %s",
-				ansi.colorize("(default: github)", {120, 120, 120}),
-			),
-			default = "src",
-		)
+		prompt(sb = &new_pkg_root, msg = "Enter the root folder of the package:", default = "src")
 		registry_pkg_path = filepath.join({registry_pkg_path, strings.to_string(new_pkg_root)})
 	}
 
@@ -104,8 +98,10 @@ update_dependencies :: proc(new_pkg_name, registry_pkg_path, local_pkg_path: str
 	catch(!success_parse, "Corrupt package uri")
 
 	new_pkg_config_uri := filepath.join({server, owner, name})
-	info("new dependency uri: %s", new_pkg_config_uri)
-	new_pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
+	info("New dependency uri: %s", new_pkg_config_uri)
+
+	pkg_config := get_config()
+	pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
 	info("Updating config file...")
-	update_config(&new_pkg_config)
+	update_config(pkg_config)
 }

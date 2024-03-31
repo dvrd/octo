@@ -101,13 +101,13 @@ parse_dependency :: proc(uri: string) -> (string, string, string, bool) {
 	}
 	parts := strings.split(uri, "/")
 	if len(parts) == 1 {
-		return "", "", parts[0], true
+		return parts[0], "", "", true
 	}
 	if len(parts) == 2 {
-		return "", parts[1], parts[0], true
+		return parts[0], parts[1], "", true
 	}
 	if len(parts) == 3 {
-		return parts[2], parts[1], parts[0], true
+		return parts[0], parts[1], parts[2], true
 	}
 	return "", "", "", false
 }

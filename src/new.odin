@@ -8,9 +8,10 @@ import "libs:failz"
 new_package :: proc() {
 	using failz
 
-	bail(len(os.args) < 3, NEW_USAGE)
+	if len(os.args) < 3 do fmt.println(NEW_USAGE)
 	proj_name := os.args[2]
-	bail(proj_name == "help", NEW_USAGE)
+
+	if proj_name == "help" do fmt.println(NEW_USAGE)
 
 	proj_path := make_project_dir(proj_name)
 	err := os.set_current_directory(proj_path)

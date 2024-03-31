@@ -7,7 +7,8 @@ import "libs:failz"
 octo :: proc() {
 	using failz
 
-	bail(len(os.args) < 2, USAGE)
+	if len(os.args) < 2 do fmt.println(USAGE)
+
 	command := os.args[1]
 	switch command {
 	case "new":
