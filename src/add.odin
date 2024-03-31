@@ -46,11 +46,9 @@ add_package :: proc() {
 	local_pkg_path := filepath.join({libs_path, new_pkg_name})
 	if os.is_dir(local_pkg_path) {
 		info(
-			fmt.tprintf(
-				"%s `%s` package already in libs folder",
-				ansi.colorize("Found", {0, 210, 80}),
-				new_pkg_name,
-			),
+			"%s `%s` package already in libs folder",
+			ansi.colorize("Found", {0, 210, 80}),
+			new_pkg_name,
 		)
 		return
 	}
@@ -60,11 +58,9 @@ add_package :: proc() {
 		catch(!success, "Corrupt package uri")
 		if name == new_pkg_name {
 			info(
-				fmt.tprintf(
-					"%s `%s` package already in dependencies",
-					ansi.colorize("Found", {0, 210, 80}),
-					new_pkg_name,
-				),
+				"%s `%s` package already in dependencies",
+				ansi.colorize("Found", {0, 210, 80}),
+				new_pkg_name,
 			)
 			return
 		}
@@ -78,11 +74,9 @@ add_package :: proc() {
 	registry_pkg_path := filepath.join({registry_path, new_pkg_name})
 	if os.is_dir(registry_pkg_path) {
 		info(
-			fmt.tprintf(
-				"%s `%s` package to dependencies",
-				ansi.colorize("Adding", {0, 210, 80}),
-				new_pkg_name,
-			),
+			"%s `%s` package to dependencies",
+			ansi.colorize("Adding", {0, 210, 80}),
+			new_pkg_name,
 		)
 
 		_, err := copy_dir(
@@ -112,7 +106,7 @@ add_package :: proc() {
 		catch(!success_parse, "Corrupt package uri")
 
 		new_pkg_config_uri := filepath.join({server, owner, name})
-		info(fmt.tprint("new dependency uri:", new_pkg_config_uri))
+		info("new dependency uri: %s", new_pkg_config_uri)
 		pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
 		info("Updating config file...")
 		update_config(pkg_config)

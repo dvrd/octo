@@ -16,15 +16,7 @@ build_package :: proc() {
 	pwd := os.get_current_directory()
 	pkg := get_config()
 
-	info(
-		fmt.tprintf(
-			"%s %s [%s] (%s)",
-			ansi.colorize("Compiling", {0, 210, 80}),
-			pkg.name,
-			pkg.version,
-			pwd,
-		),
-	)
+	info("%s %s [%s] (%s)", ansi.colorize("Compiling", {0, 210, 80}), pkg.name, pkg.version, pwd)
 
 	has_dependencies := os.exists(filepath.join({pwd, "libs"}))
 	collections := has_dependencies ? "-collection:libs=libs" : ""
@@ -73,12 +65,10 @@ build_package :: proc() {
 	duration_secs := time.duration_milliseconds(duration) / 1_000
 
 	info(
-		fmt.tprintf(
-			"%s %s [%s] target(s) in %.2fs",
-			ansi.colorize("Finished", {0, 210, 80}),
-			is_release ? "release" : "dev",
-			is_release ? "optimized" : "unoptimized + debuginfo",
-			duration_secs,
-		),
+		"%s %s [%s] target(s) in %.2fs",
+		ansi.colorize("Finished", {0, 210, 80}),
+		is_release ? "release" : "dev",
+		is_release ? "optimized" : "unoptimized + debuginfo",
+		duration_secs,
 	)
 }

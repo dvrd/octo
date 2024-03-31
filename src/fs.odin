@@ -106,7 +106,7 @@ copy_dir :: proc(
 
 	parent_dir, file_name := filepath.split(from)
 	if slice.contains(FORBIDDEN_DIRS, file_name) {
-		debug(fmt.tprintf("Ignoring directory: %s", file_name))
+		debug("Ignoring directory: %s", file_name)
 		return false, nil
 	}
 
@@ -136,22 +136,15 @@ copy_dir :: proc(
 			children_copied += 1
 		} else {
 			debug(
-				fmt.tprintf(
-					"ignoring %s, [%s] files are not allowed",
-					file.name,
-					ansi.colorize(filetype, {255, 120, 120}),
-				),
+				"ignoring %s, [%s] files are not allowed",
+				file.name,
+				ansi.colorize(filetype, {255, 120, 120}),
 			)
 		}
 	}
 
 	if children_copied == 0 {
-		debug(
-			msg = fmt.tprintf(
-				"removing directory (%s) since it is empty",
-				ansi.colorize(to, {255, 120, 120}),
-			),
-		)
+		debug("removing directory (%s) since it is empty", ansi.colorize(to, {255, 120, 120}))
 		remove_dir(to)
 		return false, nil
 	}
@@ -170,13 +163,13 @@ remove_dir :: proc(dir: string) -> failz.Error {
 			continue
 		}
 
-		debug(fmt.tprint("Removing file:", file.fullpath))
+		debug("Removing file: %s", file.fullpath)
 		if os.remove(file.fullpath) != os.ERROR_NONE {
 			return failz.SystemError{.FileRemove, os.get_last_error_string()}
 		}
 	}
 
-	debug(fmt.tprint("Removing directory:", dir))
+	debug("Removing directory: %s", dir)
 	if os.remove(dir) != os.ERROR_NONE {
 		return failz.SystemError{.DirectoryRemove, os.get_last_error_string()}
 	}

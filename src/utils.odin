@@ -16,6 +16,7 @@ when ODIN_OS == .Darwin {
 } else when ODIN_OS == .Linux {
 	foreign import lib "system:c"
 }
+
 foreign lib {
 	@(link_name = "setenv")
 	_unix_setenv :: proc(key: cstring, value: cstring, overwrite: c.int) -> c.int ---
@@ -30,11 +31,13 @@ set_env :: proc(key, value: string) -> failz.Errno {
 	return failz.Errno(os.ERROR_NONE)
 }
 
-info :: proc(msg: string) {fmt.println(failz.INFO, msg)}
+info :: proc(args: ..any) {
+	fmt.println(failz.INFO, fmt.tprintf(..args))
+}
 
-debug :: proc(msg: string) {
+debug :: proc(args: ..any) {
 	is_debug := os.get_env("OCTO_DEBUG") == "true"
-	if is_debug do fmt.println(failz.DEBUG, msg)
+	if is_debug do fmt.println(failz.DEBUG, fmt.tprintf(..args))
 }
 
 prompt :: proc(sb: ^strings.Builder, msg: string, default := "") {

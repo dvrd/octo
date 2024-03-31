@@ -12,26 +12,14 @@ remove_package :: proc() {
 	bail(len(os.args) < 3, REMOVE_USAGE)
 	pkg_config := get_config()
 	dep_owner, dep_name := filepath.split(os.args[2])
-	info(
-		fmt.tprintf(
-			"%s `%s` from dependencies",
-			ansi.colorize("Removing", {0, 210, 80}),
-			dep_name,
-		),
-	)
+	info("%s `%s` from dependencies", ansi.colorize("Removing", {0, 210, 80}), dep_name)
 
 	bail(dep_name == "help", REMOVE_USAGE)
 	pwd := os.get_current_directory()
 
 	libs_path := filepath.join({pwd, "libs"})
 	if !os.exists(libs_path) {
-		info(
-			fmt.tprintf(
-				"%s dependencies library",
-				ansi.colorize("Missing", {0, 210, 80}),
-				dep_name,
-			),
-		)
+		info("%s dependencies library", ansi.colorize("Missing", {0, 210, 80}), dep_name)
 		return
 	}
 

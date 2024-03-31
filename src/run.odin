@@ -14,6 +14,6 @@ run_package :: proc() {
 		len(os.args) > 2 && os.args[2] == "--release" \
 		? get_bin_path(pwd, "release") \
 		: get_bin_path(pwd)
-	info(fmt.tprintf("%s `%s`", ansi.colorize("Running", {0, 210, 80}), bin_path))
+	info("%s `%s`", ansi.colorize("Running", {0, 210, 80}), bin_path)
 	failz.catch(!cmd.launch({bin_path}), "Failed to run the package")
 }

@@ -17,5 +17,5 @@ init_package :: proc() {
 	make_main_file(make_src_dir(pwd), pwd_info.name)
 	init_git()
 
-	info(fmt.tprintf("%s binary (application) package", ansi.colorize("Created", {0, 210, 80})))
+	info("%s binary (application) package", ansi.colorize("Created", {0, 210, 80}))
 }

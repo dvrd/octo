@@ -21,11 +21,5 @@ new_package :: proc() {
 	make_main_file(make_src_dir(proj_path), proj_name)
 	init_git()
 
-	info(
-		fmt.tprintf(
-			"%s binary (application) `%s` package",
-			ansi.colorize("Created", {0, 210, 80}),
-			proj_name,
-		),
-	)
+	info("%s binary (application) `%s` package", ansi.colorize("Created", {0, 210, 80}), proj_name)
 }

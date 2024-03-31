@@ -38,16 +38,14 @@ install_package :: proc() {
 	}
 
 	info(
-		fmt.tprintf(
-			"%s `%s` release build [%s = %s]",
-			ansi.colorize("Installing", {0, 210, 80}),
-			pwd_info.name,
-			ansi.colorize("target", {200, 150, 255}),
-			octo_bin_path,
-		),
+		"%s `%s` release build [%s = %s]",
+		ansi.colorize("Installing", {0, 210, 80}),
+		pwd_info.name,
+		ansi.colorize("target", {200, 150, 255}),
+		octo_bin_path,
 	)
 
 	catch(!link(bin_path, octo_bin_path), "Failed to install binary to system")
 
-	info(fmt.tprintf("%s installation", ansi.colorize("Successful", {0, 210, 80})))
+	info("%s installation", ansi.colorize("Successful", {0, 210, 80}))
 }
