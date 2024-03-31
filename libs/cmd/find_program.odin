@@ -6,27 +6,25 @@ import "core:strings"
 import "libs:failz"
 
 find_program :: proc(target: string) -> (string, bool) #optional_ok {
+	using failz
+
 	sb := strings.builder_make()
 	env_path := os.get_env("PATH")
 	dirs := strings.split(env_path, ":")
 
 	if len(dirs) == 0 {
-		failz.warn(msg = "missing $path environment variable")
+		warn(msg = "missing $PATH environment variable")
 		return "", false
 	}
 
 	for dir in dirs {
-		if !os.is_dir(dir) {
-			failz.warn(msg = "corrupt $path environment variable")
-			failz.warn(msg = fmt.tprintf("found (%s) is not a directory", dir))
-			return "", false
-		}
+		if !os.is_dir(dir) || strings.contains(dir, "sbin") do continue
 
 		fd, err := os.open(dir)
 		defer os.close(fd)
 
 		if err != os.ERROR_NONE {
-			failz.warn(failz.Errno(err), fmt.tprintf("found issue reading directory (%s): ", dir))
+			warn(Errno(err), fmt.tprintf("found issue opening directory (%s): ", dir))
 			continue
 		}
 
@@ -34,7 +32,10 @@ find_program :: proc(target: string) -> (string, bool) #optional_ok {
 		defer os.file_info_slice_delete(fis)
 
 		fis, err = os.read_dir(fd, -1)
-		failz.warn(failz.Errno(err), fmt.tprintf("found issue reading directory (%s): ", dir))
+		if err != os.ERROR_NONE {
+			warn(Errno(err), fmt.tprintf("found issue reading directory (%s): ", dir))
+			continue
+		}
 
 		for fi in fis {
 			if fi.name == target {
