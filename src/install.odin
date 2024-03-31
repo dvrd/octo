@@ -32,10 +32,10 @@ install_package :: proc() {
 		catch(Errno(os.make_directory(octo_bin_path)))
 	}
 
-	// if os.exists(filepath.join({octo_bin_path, pwd_info.name})) {
-	// 	warn(msg = "The package is already installed")
-	// 	return
-	// }
+	if os.exists(filepath.join({octo_bin_path, pwd_info.name})) {
+		warn(msg = "The package is already installed")
+		return
+	}
 
 	info(
 		fmt.tprintf(
@@ -47,7 +47,6 @@ install_package :: proc() {
 		),
 	)
 
-	// catch(!cmd.launch({"ln", "-s", bin_path, octo_bin_path}), "Failed to install binary to system")
 	catch(!link(bin_path, octo_bin_path), "Failed to install binary to system")
 
 	info(fmt.tprintf("%s installation", ansi.colorize("Successful", {0, 210, 80})))

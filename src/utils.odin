@@ -26,18 +26,15 @@ set_env :: proc(key, value: string) -> failz.Errno {
 	key_cstring := strings.clone_to_cstring(key, context.temp_allocator)
 	value_cstring := strings.clone_to_cstring(value, context.temp_allocator)
 	res := _unix_setenv(key_cstring, value_cstring, 1)
-	if res < 0 {
-		return failz.Errno(os.get_last_error())
-	}
+	if res < 0 do return failz.Errno(os.get_last_error())
 	return failz.Errno(os.ERROR_NONE)
 }
 
 info :: proc(msg: string) {fmt.println(failz.INFO, msg)}
 
 debug :: proc(msg: string) {
-	when ODIN_DEBUG {
-		fmt.println(failz.DEBUG, msg)
-	}
+	is_debug := os.get_env("OCTO_DEBUG") == "true"
+	if is_debug do fmt.println(failz.DEBUG, msg)
 }
 
 prompt :: proc(sb: ^strings.Builder, msg: string, default := "") {
@@ -112,7 +109,7 @@ parse_dependency :: proc(uri: string) -> (string, string, string, bool) {
 	return "", "", "", false
 }
 
-make_octo_file :: proc(proj_path: string, proj_name: string) {
+make_octo_file :: proc(proj_path: string, proj_name: string, uri := "") {
 	using failz
 	using strings
 
@@ -175,6 +172,21 @@ make_octo_file :: proc(proj_path: string, proj_name: string) {
 				to_string(git_user),
 				proj_name,
 			),
+		)
+	}
+}
+
+make_placeholder_octo_file :: proc(proj_path, server, owner, name: string) {
+	using failz
+	using strings
+
+	octo_config_path := filepath.join({proj_path, OCTO_CONFIG_FILE})
+	if os.exists(octo_config_path) {
+		warn(msg = fmt.tprintf("Config %s already exists", bold(OCTO_CONFIG_FILE)))
+	} else {
+		write_to_file(
+			octo_config_path,
+			fmt.tprintf(OCTO_CONFIG_TEMPLATE, name, owner, "0.1.0", "", server, owner, name),
 		)
 	}
 }

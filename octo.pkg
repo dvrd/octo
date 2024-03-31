@@ -1,11 +1,14 @@
 {
-    name: "octo",
-    owner: "Dan<dan@devoured.io>",
-    version: "0.1.0",
-    description: "Bespoke package manager for the Odin language",
-    url: "https://github.comdvrd//octo",
-    readme: "",
-    license: "",
-    keywords: [],
-    dependencies: {}
+    "name": "octo",
+    "url": "https://github.comdvrd//octo",
+    "readme": "",
+    "description": "Bespoke package manager for the Odin language",
+    "version": "0.1.0",
+    "license": "",
+    "keywords": [
+
+    ],
+    "dependencies": {
+
+    }
 }

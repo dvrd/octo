@@ -66,6 +66,7 @@ OLS_TEMPLATE :: `
 `
 
 OCTO_CONFIG_FILE :: "octo.pkg"
+OPM_CONFIG_FILE :: "mod.pkg"
 OCTO_CONFIG_TEMPLATE :: `{{
     name: "%s",
     owner: "%s",

@@ -76,7 +76,6 @@ add_package :: proc() {
 	}
 
 	registry_pkg_path := filepath.join({registry_path, new_pkg_name})
-	registry_pkg_config_path := filepath.join({registry_pkg_path, OCTO_CONFIG_FILE})
 	if os.is_dir(registry_pkg_path) {
 		info(
 			fmt.tprintf(
@@ -86,10 +85,20 @@ add_package :: proc() {
 			),
 		)
 
-		catch(copy_dir(registry_pkg_path, local_pkg_path, ".odin"))
+		_, err := copy_dir(
+			registry_pkg_path,
+			local_pkg_path,
+			{"odin", "a", "lib", "o", "dll", "dynlib"},
+		)
+		catch(err)
+
+		registry_pkg_config_path := filepath.join({registry_pkg_path, OCTO_CONFIG_FILE})
 		if !os.exists(registry_pkg_config_path) {
-			warn(msg = "Missing config file in new package")
-			warn(msg = "Creating configuration for new package")
+			registry_pkg_config_path = filepath.join({registry_pkg_path, OPM_CONFIG_FILE})
+		}
+		if !os.exists(registry_pkg_config_path) {
+			debug("Missing config file in new package")
+			debug("Creating configuration for new package")
 			make_octo_file(registry_pkg_path, new_pkg_name)
 		}
 
@@ -102,12 +111,13 @@ add_package :: proc() {
 		server, owner, name, success_parse := parse_dependency(new_pkg_config.url)
 		catch(!success_parse, "Corrupt package uri")
 
-		pkg_config.dependencies[filepath.join({server, owner, name})] = new_pkg_config.version
+		new_pkg_config_uri := filepath.join({server, owner, name})
+		pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
 		update_config(pkg_config)
 	} else {
 		catch(
 			len(new_pkg_info) == 1,
-			msg = fmt.tprintf("Package `%s` not found in %s", new_pkg_name, purple("registry")),
+			fmt.tprintf("Package `%s` not found in %s", new_pkg_name, purple("registry")),
 		)
 
 		if len(new_pkg_info) == 2 {
@@ -115,8 +125,8 @@ add_package :: proc() {
 			if found {
 				new_pkg_server = env_server
 			} else {
-				warn(
-					msg = "No git server specified (OCTO_GIT_SERVER is unset), using default (github.com)",
+				debug(
+					"No git server specified (OCTO_GIT_SERVER is unset), using default (github.com)",
 				)
 				new_pkg_server = "github.com"
 			}
@@ -135,12 +145,26 @@ add_package :: proc() {
 			),
 		)
 		catch(!ok, "Could not clone package")
-		catch(copy_dir(registry_pkg_path, local_pkg_path, ".odin"))
+		_, err := copy_dir(
+			registry_pkg_path,
+			local_pkg_path,
+			{"odin", "a", "lib", "o", "dll", "dynlib"},
+		)
+		catch(err)
 
+		registry_pkg_config_path := filepath.join({registry_pkg_path, OCTO_CONFIG_FILE})
 		if !os.exists(registry_pkg_config_path) {
-			warn(msg = "Missing config file in new package")
-			warn(msg = "Creating configuration for new package")
-			make_octo_file(registry_pkg_path, new_pkg_name)
+			registry_pkg_config_path = filepath.join({registry_pkg_path, OPM_CONFIG_FILE})
+		}
+		if !os.exists(registry_pkg_config_path) {
+			debug("Missing config file in new package")
+			debug("Creating configuration for new package")
+			make_placeholder_octo_file(
+				registry_pkg_path,
+				new_pkg_server,
+				new_pkg_owner,
+				new_pkg_name,
+			)
 		}
 
 		new_pkg_config_raw_data, success := os.read_entire_file(registry_pkg_config_path)
@@ -148,8 +172,8 @@ add_package :: proc() {
 		new_pkg_config: Package
 		catch(json.unmarshal(new_pkg_config_raw_data, &new_pkg_config))
 
-		pkg_config.dependencies[filepath.join({new_pkg_server, new_pkg_owner, new_pkg_name})] =
-			new_pkg_config.version
+		new_pkg_config_uri := filepath.join({new_pkg_server, new_pkg_owner, new_pkg_name})
+		pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
 		update_config(pkg_config)
 	}
 }

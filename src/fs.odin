@@ -5,6 +5,7 @@ import "core:c"
 import "core:fmt"
 import "core:os"
 import "core:path/filepath"
+import "core:slice"
 import "core:strings"
 import "libs:ansi"
 import "libs:cmd"
@@ -90,45 +91,72 @@ read_dir :: proc(
 		return nil, failz.SystemError{.DirectoryRead, os.get_last_error_string()}
 	}
 
-	return fis, .ERROR_NONE
+	return fis, nil
 }
 
-copy_dir :: proc(from, to: string, with_pattern := "") -> failz.Error {
+FORBIDDEN_DIRS :: []string{".git", ".github", "examples", "build"}
+copy_dir :: proc(
+	from, to: string,
+	allowed_filetypes: []string = {},
+) -> (
+	completed: bool,
+	err: failz.Error,
+) {
 	using failz
-	debug(fmt.tprint("Copying directory:", from, "to:", to))
+
+	parent_dir, file_name := filepath.split(from)
+	if slice.contains(FORBIDDEN_DIRS, file_name) {
+		debug(fmt.tprintf("Ignoring directory: %s", file_name))
+		return false, nil
+	}
 
 	files := read_dir(from) or_return
 
 	if !os.is_dir(to) {
 		errno := os.make_directory(to)
 		if errno != os.ERROR_NONE {
-			return failz.SystemError{.DirectoryCreate, os.get_last_error_string()}
+			return false, failz.SystemError{.DirectoryCreate, os.get_last_error_string()}
 		}
 	}
 
-	count := 0
+	children_copied := 0
 	for file in files {
 		copy_to := filepath.join({to, file.name})
 
 		if file.is_dir {
-			copy_dir(file.fullpath, copy_to) or_return
+			completed := copy_dir(file.fullpath, copy_to, allowed_filetypes) or_return
+			if completed {children_copied += 1}
 			continue
 		}
 
-		if with_pattern == "" || strings.contains(file.name, with_pattern) {
+		file_split := strings.split(file.name, ".")
+		filetype := len(file_split) == 2 ? file_split[1] : "unknown"
+		if len(allowed_filetypes) == 0 || slice.contains(allowed_filetypes, filetype) {
 			copy_file_with_mode(from = file.fullpath, to = copy_to, mode = file.mode) or_return
-			count += 1
+			children_copied += 1
 		} else {
-			warn(msg = fmt.tprintf("Ignoring: %s", file.name))
+			debug(
+				fmt.tprintf(
+					"ignoring %s, [%s] files are not allowed",
+					file.name,
+					ansi.colorize(filetype, {255, 120, 120}),
+				),
+			)
 		}
 	}
 
-	if count == 0 {
-		os.remove(to)
-		warn(msg = fmt.tprintf("removing directory (%s) since it is empty", to))
+	if children_copied == 0 {
+		debug(
+			msg = fmt.tprintf(
+				"removing directory (%s) since it is empty",
+				ansi.colorize(to, {255, 120, 120}),
+			),
+		)
+		remove_dir(to)
+		return false, nil
 	}
 
-	return nil
+	return true, nil
 }
 
 remove_dir :: proc(dir: string) -> failz.Error {
