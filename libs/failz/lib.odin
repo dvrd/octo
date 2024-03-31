@@ -19,6 +19,7 @@ ErrorKind :: enum {
 	DirectoryCreate,
 	DirectoryRead,
 	DirectoryRemove,
+	HTTP,
 }
 
 SystemError :: struct {
