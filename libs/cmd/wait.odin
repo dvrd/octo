@@ -23,7 +23,7 @@ waitpid :: proc "contextless" (
 	Pid,
 	failz.Errno,
 ) {
-	ret := _unix_waitpid(cast(i32)pid, status, transmute(u32)options)
-	return Pid(ret), failz.Errno(os.get_last_error())
+	wpid := Pid(_unix_waitpid(cast(i32)pid, status, transmute(u32)options))
+	if wpid < 0 do return wpid, failz.Errno(os.get_last_error())
+	return wpid, .ERROR_NONE
 }
-

@@ -52,15 +52,18 @@ octo :: proc() {
 		new_package()
 	case "init":
 		init_package()
-	case "run":
+	case "run", "r":
 		run_package()
 	case "build":
 		build_package()
-	case "install":
+	case "release":
+		os.args = {"", "", "--release"}
+		build_package()
+	case "install", "i":
 		install_package()
 	case "add":
 		add_package()
-	case "remove":
+	case "remove", "rm":
 		remove_package()
 	case "list", "ls":
 		list_registry()

@@ -7,27 +7,28 @@ octo [v0.1.0]
 
 Usage:
 
-  init      - initialize a project in the current directory
-  new       - create a new project
-  run       - build a debug version and run current directory project
-  build     - build a debug version of current directory project
-  release   - build a release version of current directory project
-  install   - generate a symlink of your project to /usr/local/bin
-  help      - show this message
-  add       - add a dependency library to the project
-  list, ls  - list all installed dependencies in the registry directory
+  init              - initialize a project in the current directory
+  new               - create a new project
+  run, r            - build a debug version and run current directory project
+  build             - build a debug version of current directory project
+  release           - build a release version of current directory project
+  install, i        - generate a symlink of your project to /usr/local/bin
+  help              - show this message
+  add               - add a dependency library to the project
+  remove, rm        - remove a dependency library from the project
+  list, ls          - list all installed dependencies in the registry directory
 `
 
 NEW_USAGE :: `Usage:
-  new <name> - create a new project
+  octo new <PKG> - create a new project
 `
 
 BUILD_USAGE :: `Usage:
-  build [optional:--release] - create a new project
+  octo build [--release] - create a new project
 `
 
 ADD_USAGE :: `Usage:
-  add <optional:server>/<optional:owner>/<required:pkg> - add a dependency library to the project
+  octo add [<SERVER>]/[<OWNER>]/<PKG> - add a dependency library to the project
 
   NOTE: 
     * octo will always try to search first in the registry
@@ -35,7 +36,7 @@ ADD_USAGE :: `Usage:
 `
 
 REMOVE_USAGE :: `Usage:
-  remove <owner>/<pkg> - remove a dependency library from the project
+  octo remove [<OWNER>]/<PKG> - remove a dependency library from the project
 `
 
 OLS_FILE :: "ols.json"

@@ -112,7 +112,9 @@ add_package :: proc() {
 		catch(!success_parse, "Corrupt package uri")
 
 		new_pkg_config_uri := filepath.join({server, owner, name})
+		info(fmt.tprint("new dependency uri:", new_pkg_config_uri))
 		pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
+		info("Updating config file...")
 		update_config(pkg_config)
 	} else {
 		catch(

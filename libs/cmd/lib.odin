@@ -1,9 +1,9 @@
 package cmd
 
 import "core:c"
-import "core:os"
 import "core:c/libc"
 import "core:fmt"
+import "core:os"
 import "libs:failz"
 
 Pid :: distinct i32
@@ -44,7 +44,7 @@ CmdRunner :: struct {
 	args: []string,
 	path: string,
 	pid:  Pid,
-	err:	failz.Errno,
+	err:  failz.Errno,
 }
 
 init :: proc(cmd: ^CmdRunner, args: []string) -> (ok: bool) {
@@ -84,4 +84,3 @@ wait :: proc(cmd: ^CmdRunner) -> bool {
 }
 
 close :: proc(cmd: ^CmdRunner) {}
-
