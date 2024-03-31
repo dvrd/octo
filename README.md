@@ -48,7 +48,7 @@ $ octo install
 $ octo ls
 $ octo list
 $ octo build --release
-$ octo add <server:default=github.com>/<owner>/<package_name>
-$ octo remove <package_name>
+$ octo add <SERVER>/<OWNER>/<PKG>
+$ octo rm <PKG>
 ```
 
