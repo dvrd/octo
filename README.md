@@ -1,12 +1,29 @@
 # Octo
 
-Octo is a bespoke package manager for Odin that is meant to be opinionated and comfortable
+Octo is a bespoke package manager for Odin that is meant to be opinionated and comfortable.
+The concept is to maintain grain control of the process with some ergonomics.
+The program is just doing what I would do manually without magic
 
 ### Limitations
 * **Currently** only supports MacOS (Should work in Linux too but haven't tested)
-* The packages are just getting copied around atm
-* Haven't added a way for the system to automatically download dependencies
+* Not managing dependencies of dependencies. (Not sure I will)
 * No real build flexibility (idea is to integrate @DragonPopse [odin-build](https://github.com/DragosPopse/odin-build))
+
+Octo expects the following file structure:
+* octo.pkg
+* ols.json
+* src
+* libs
+* target
+
+All folders in libs are automatically added as part of the `libs` collection
+```odin
+import "libs:<some dependency>"
+```
+
+### Packages
+Packages are downloaded to `$HOME/.octo` folder and then copied to your project `libs`.
+To avoid unnecessary files only `odin` source files or static/shared libraries are copied
 
 ### Installation
 
@@ -24,7 +41,10 @@ $ octo init
 $ octo run
 $ octo build
 $ octo install
+$ octo ls
+$ octo list
 $ octo build --release
-$ octo add <package_name>
+$ octo add <server:default=github.com>/<owner>/<package_name>
 $ octo remove <package_name>
 ```
+
