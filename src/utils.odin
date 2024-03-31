@@ -31,13 +31,13 @@ set_env :: proc(key, value: string) -> failz.Errno {
 	return failz.Errno(os.ERROR_NONE)
 }
 
-info :: proc(args: ..any) {
-	fmt.println(failz.INFO, fmt.tprintf(..args))
+info :: proc(msg: string, args: ..any) {
+	fmt.println(failz.INFO, fmt.tprintf(msg, ..args))
 }
 
-debug :: proc(args: ..any) {
+debug :: proc(msg: string, args: ..any) {
 	is_debug := os.get_env("OCTO_DEBUG") == "true"
-	if is_debug do fmt.println(failz.DEBUG, fmt.tprintf(..args))
+	if is_debug do fmt.println(failz.DEBUG, fmt.tprintf(msg, args))
 }
 
 prompt :: proc(sb: ^strings.Builder, msg: string, default := "") {

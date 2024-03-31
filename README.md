@@ -33,6 +33,8 @@ cd octo
 make install
 ```
 
+I like nerd-font-icons so if have them installed and want to see them you can set `FAILZ_ICONS_ENABLED` to `true` and they'll show up
+
 ### Available commands
 
 ```bash
