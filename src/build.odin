@@ -30,6 +30,10 @@ build_package :: proc() {
 	collections := has_dependencies ? "-collection:libs=libs" : ""
 
 	is_release := len(os.args) > 2 && os.args[2] == "--release"
+	if !is_release && len(os.args) > 2 {
+		bail(msg = BUILD_USAGE)
+	}
+
 	bin_path: string
 	if is_release {
 		bin_path = get_bin_path(pwd, "release")

@@ -76,35 +76,37 @@ read_dir :: proc(
 	allocator := context.temp_allocator,
 ) -> (
 	[]os.File_Info,
-	os.Errno,
+	failz.Error,
 ) {
-	f, err := os.open(dir_name, os.O_RDONLY)
-	if err != 0 do return nil, err
+	f, errno := os.open(dir_name, os.O_RDONLY)
+	if errno != os.ERROR_NONE {
+		return nil, failz.SystemError{.DirectoryOpen, os.get_last_error_string()}
+	}
+	defer os.close(f)
 
 	fis: []os.File_Info
-	fis, err = os.read_dir(f, -1, allocator)
-	os.close(f)
+	fis, errno = os.read_dir(f, -1, allocator)
+	if errno != os.ERROR_NONE {
+		return nil, failz.SystemError{.DirectoryRead, os.get_last_error_string()}
+	}
 
-	if err != 0 do return nil, err
-	return fis, 0
+	return fis, .ERROR_NONE
 }
 
-copy_dir :: proc(from, to: string) -> failz.Error {
+copy_dir :: proc(from, to: string, with_pattern := "") -> failz.Error {
 	using failz
 	debug(fmt.tprint("Copying directory:", from, "to:", to))
 
-	files, errno := read_dir(from)
-	if errno != os.ERROR_NONE {
-		return failz.SystemError{.DirectoryRead, os.get_last_error_string()}
-	}
+	files := read_dir(from) or_return
 
 	if !os.is_dir(to) {
-		errno = os.make_directory(to)
+		errno := os.make_directory(to)
 		if errno != os.ERROR_NONE {
 			return failz.SystemError{.DirectoryCreate, os.get_last_error_string()}
 		}
 	}
 
+	count := 0
 	for file in files {
 		copy_to := filepath.join({to, file.name})
 
@@ -113,7 +115,17 @@ copy_dir :: proc(from, to: string) -> failz.Error {
 			continue
 		}
 
-		copy_file_with_mode(from = file.fullpath, to = copy_to, mode = file.mode) or_return
+		if with_pattern == "" || strings.contains(file.name, with_pattern) {
+			copy_file_with_mode(from = file.fullpath, to = copy_to, mode = file.mode) or_return
+			count += 1
+		} else {
+			warn(msg = fmt.tprintf("Ignoring: %s", file.name))
+		}
+	}
+
+	if count == 0 {
+		os.remove(to)
+		warn(msg = fmt.tprintf("removing directory (%s) since it is empty", to))
 	}
 
 	return nil
@@ -122,10 +134,7 @@ copy_dir :: proc(from, to: string) -> failz.Error {
 remove_dir :: proc(dir: string) -> failz.Error {
 	using failz
 
-	files, errno := read_dir(dir)
-	if errno != os.ERROR_NONE {
-		return failz.SystemError{.DirectoryRead, os.get_last_error_string()}
-	}
+	files := read_dir(dir) or_return
 
 	for file in files {
 		if file.is_dir {

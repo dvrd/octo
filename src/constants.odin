@@ -15,14 +15,23 @@ Usage:
   install   - generate a symlink of your project to /usr/local/bin
   help      - show this message
   add       - add a dependency library to the project
+  list, ls  - list all installed dependencies in the registry directory
 `
 
 NEW_USAGE :: `Usage:
   new <name> - create a new project
 `
 
+BUILD_USAGE :: `Usage:
+  build [optional:--release] - create a new project
+`
+
 ADD_USAGE :: `Usage:
-  add <owner>/<pkg> - add a dependency library to the project
+  add <optional:server>/<optional:owner>/<required:pkg> - add a dependency library to the project
+
+  NOTE: 
+    * octo will always try to search first in the registry
+    * If "owner" and "pkg" are provided octo will try in github or OCTO_GIT_SERVER after checking registry
 `
 
 REMOVE_USAGE :: `Usage:

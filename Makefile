@@ -24,7 +24,7 @@ build: $(RELEASE_OUT_DIR)
 	@odin build $(SRC_DIR) -out:$(RELEASE_OUT_DIR)/$(PROJ) -o:speed $(COLLECTIONS)
 
 debug: $(DEBUG_OUT_DIR)
-	@echo "BUILD_INFO: building release version..."
+	@echo "BUILD_INFO: building debug version..."
 	@odin build $(SRC_DIR) -out:$(DEBUG_OUT_DIR)/$(PROJ) -debug $(COLLECTIONS)
 
 $(REGISTRY_DIR):

@@ -82,7 +82,7 @@ make_project_dir :: proc(proj_name: string) -> string {
 	return proj_path
 }
 
-make_ols_file :: proc(proj_path: string) -> string {
+make_ols_file :: proc(proj_path: string) {
 	using failz
 
 	ols_path := filepath.join({proj_path, OLS_FILE})
@@ -91,17 +91,28 @@ make_ols_file :: proc(proj_path: string) -> string {
 	} else {
 		write_to_file(ols_path, OLS_TEMPLATE)
 	}
-
-	return ols_path
 }
 
-parse_dependency :: proc(uri: string) -> (string, string, string) {
-	git_info, name := filepath.split(uri)
-	server, owner := filepath.split(git_info)
-	return server, owner, name
+parse_dependency :: proc(uri: string) -> (string, string, string, bool) {
+	uri := uri
+	if strings.contains(uri, "://") {
+		split_uri := strings.split(uri, "://")
+		uri = split_uri[1]
+	}
+	parts := strings.split(uri, "/")
+	if len(parts) == 1 {
+		return "", "", parts[0], true
+	}
+	if len(parts) == 2 {
+		return "", parts[1], parts[0], true
+	}
+	if len(parts) == 3 {
+		return parts[2], parts[1], parts[0], true
+	}
+	return "", "", "", false
 }
 
-make_octo_file :: proc(proj_path: string, proj_name: string) -> string {
+make_octo_file :: proc(proj_path: string, proj_name: string) {
 	using failz
 	using strings
 
@@ -166,8 +177,6 @@ make_octo_file :: proc(proj_path: string, proj_name: string) -> string {
 			),
 		)
 	}
-
-	return octo_config_path
 }
 
 make_src_dir :: proc(proj_path: string) -> string {
@@ -182,7 +191,7 @@ make_src_dir :: proc(proj_path: string) -> string {
 	return src_path
 }
 
-make_main_file :: proc(src_path: string, proj_name: string) -> string {
+make_main_file :: proc(src_path: string, proj_name: string) {
 	using failz
 	main_path := filepath.join({src_path, MAIN_FILE})
 	if os.exists(main_path) {
@@ -190,7 +199,6 @@ make_main_file :: proc(src_path: string, proj_name: string) -> string {
 	} else {
 		write_to_file(main_path, fmt.tprintf(MAIN_TEMPLATE, proj_name))
 	}
-	return main_path
 }
 
 init_git :: proc() {

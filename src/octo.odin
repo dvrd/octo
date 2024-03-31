@@ -62,6 +62,8 @@ octo :: proc() {
 		add_package()
 	case "remove":
 		remove_package()
+	case "list", "ls":
+		list_registry()
 	case:
 		fmt.println(USAGE)
 	}

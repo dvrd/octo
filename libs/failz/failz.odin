@@ -1,5 +1,6 @@
 package failz
 
+import "core:encoding/json"
 import "core:fmt"
 import "core:mem"
 import "core:os"
@@ -18,12 +19,14 @@ purple :: proc(str: string) -> string {
 }
 
 AllocError :: mem.Allocator_Error
+UnmarshalError :: json.Unmarshal_Error
 
 ErrorKind :: enum {
 	FileOpen,
 	FileRead,
 	FileWrite,
 	FileRemove,
+	DirectoryOpen,
 	DirectoryCreate,
 	DirectoryRead,
 	DirectoryRemove,
@@ -36,6 +39,7 @@ SystemError :: struct {
 
 Error :: union {
 	AllocError,
+	UnmarshalError,
 	SystemError,
 	Errno,
 	bool,
@@ -204,7 +208,7 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 	if err != nil && should_exit {os.exit(1)}
 }
 
-bail :: proc(did_fail: bool, msg: string) {
+bail :: proc(did_fail := true, msg: string) {
 	if did_fail {
 		fmt.println(msg)
 		os.exit(1)

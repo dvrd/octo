@@ -16,10 +16,9 @@ new_package :: proc() {
 	err := os.set_current_directory(proj_path)
 	catch(Errno(err))
 
-	ols_path := make_ols_file(proj_path)
-	octo_path := make_octo_file(proj_path, proj_name)
-	src_path := make_src_dir(proj_path)
-	main_path := make_main_file(src_path, proj_name)
+	make_ols_file(proj_path)
+	make_octo_file(proj_path, proj_name)
+	make_main_file(make_src_dir(proj_path), proj_name)
 	init_git()
 
 	info(
