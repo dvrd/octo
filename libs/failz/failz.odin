@@ -7,13 +7,13 @@ import "core:os"
 import "core:strings"
 import "libs:ansi"
 
-
 INFO := ansi.bold(ansi.colorize("  ", {80, 150, 225}))
 ERROR := ansi.colorize("  ", {220, 20, 60})
 WARNING := ansi.colorize("  ", {255, 210, 0})
 MESSAGE := ansi.colorize("  ", {0, 144, 255})
 DEBUG := ansi.colorize("  ", {204, 146, 255})
 PROMPT := ansi.colorize(" 󰠗 ", {0, 144, 255})
+BAIL := ansi.colorize("  ", {0, 144, 255})
 
 @(init)
 check_icons_enabled :: proc() {
@@ -25,6 +25,7 @@ check_icons_enabled :: proc() {
 		MESSAGE = ""
 		DEBUG = ""
 		PROMPT = ""
+		BAIL = ""
 	}
 }
 
@@ -222,9 +223,9 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 	if err != nil && should_exit {os.exit(1)}
 }
 
-bail :: proc(did_fail := true, msg: string) {
+bail :: proc(did_fail := true, msg: string, args: ..any) {
 	if did_fail {
-		fmt.println(msg)
+		fmt.printfln(BAIL, fmt.tprintf(msg, ..args))
 		os.exit(1)
 	}
 }

@@ -17,7 +17,7 @@ launch :: proc(args: []string) -> bool {
 	cmd: CmdRunner
 	defer close(&cmd)
 
-	if !init(&cmd, args) {return false}
-	if !run(&cmd) {return false}
+	if !init(&cmd, args) { return false }
+	if !run(&cmd) { return false }
 	return wait(&cmd)
 }
