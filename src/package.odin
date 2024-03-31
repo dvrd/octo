@@ -50,6 +50,7 @@ read_config :: proc(pkg: ^Package, pkg_path: string) {
 	using failz
 
 	config_path := filepath.join({pkg_path, OCTO_CONFIG_FILE})
+	debug("Reading config from %s", config_path)
 	if !os.exists(config_path) {
 		debug("Missing `octo` config in package")
 		debug("Trying `opm` config")
@@ -75,11 +76,11 @@ contains_dependency :: proc(pkg: ^Package, target: string) -> bool {
 find_dependency :: proc(pkg: ^Package, target: string) -> (string, bool) {
 	using failz
 
-	for dep_name, dep_version in pkg.dependencies {
-		server, owner, name, success := parse_dependency(pkg.url)
+	for pkg_uri, dep_version in pkg.dependencies {
+		server, owner, name, success := parse_dependency(pkg_uri)
 		catch(!success, "Corrupt package uri")
-		if dep_name == target {
-			return dep_version, true
+		if name == target {
+			return pkg_uri, true
 		}
 	}
 	return "", false

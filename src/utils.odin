@@ -31,6 +31,13 @@ set_env :: proc(key, value: string) -> failz.Errno {
 	return failz.Errno(os.ERROR_NONE)
 }
 
+usage :: proc(condition: bool, msg: string, args: ..any) {
+	if condition {
+		fmt.printfln(msg, ..args)
+		os.exit(1)
+	}
+}
+
 info :: proc(msg: string, args: ..any) {
 	fmt.println(failz.INFO, fmt.tprintf(msg, ..args))
 }
@@ -41,7 +48,7 @@ debug :: proc(msg: string, args: ..any) {
 }
 
 prompt :: proc(sb: ^strings.Builder, msg: string, default := "") {
-	fmt.printf("%s %s %s", failz.PROMPT, msg, default)
+	fmt.printf("%s %s %s", failz.PROMPT, msg, ansi.colorize(default, {255, 210, 210}))
 	for c := libc.getchar(); c != '\n'; c = libc.getchar() {
 		strings.write_rune(sb, rune(c))
 	}

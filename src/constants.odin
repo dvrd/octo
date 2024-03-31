@@ -39,6 +39,10 @@ REMOVE_USAGE :: `Usage:
   octo remove [<OWNER>]/<PKG> - remove a dependency library from the project
 `
 
+SEARCH_USAGE :: `Usage:
+  octo search <PKG> - searches the web for a dependency
+`
+
 OLS_FILE :: "ols.json"
 OLS_TEMPLATE :: `
 {

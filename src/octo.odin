@@ -7,7 +7,7 @@ import "libs:failz"
 octo :: proc() {
 	using failz
 
-	if len(os.args) < 2 do fmt.println(USAGE)
+	usage(len(os.args) < 2, USAGE)
 
 	command := os.args[1]
 	switch command {
@@ -28,6 +28,8 @@ octo :: proc() {
 		add_package()
 	case "remove", "rm":
 		remove_package()
+	case "search":
+		search_package()
 	case "list", "ls":
 		list_registry()
 	case:

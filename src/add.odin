@@ -11,8 +11,8 @@ import "libs:failz"
 add_package :: proc() {
 	using failz
 
-	if len(os.args) < 3 do fmt.println(ADD_USAGE)
-	if os.args[2] == "help" do fmt.println(ADD_USAGE)
+	usage(len(os.args) < 3, ADD_USAGE)
+	usage(os.args[2] == "help", ADD_USAGE)
 
 	home, found := os.lookup_env("HOME")
 	catch(!found, "HOME env variable not set")
@@ -98,10 +98,8 @@ update_dependencies :: proc(new_pkg_name, registry_pkg_path, local_pkg_path: str
 	catch(!success_parse, "Corrupt package uri")
 
 	new_pkg_config_uri := filepath.join({server, owner, name})
-	info("New dependency uri: %s", new_pkg_config_uri)
 
 	pkg_config := get_config()
 	pkg_config.dependencies[new_pkg_config_uri] = new_pkg_config.version
-	info("Updating config file...")
 	update_config(pkg_config)
 }
