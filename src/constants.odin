@@ -16,6 +16,7 @@ Usage:
   help              - show this message
   add               - add a dependency library to the project
   remove, rm        - remove a dependency library from the project
+  update            - git pull rebase one of your dependencies
   list, ls          - list all installed dependencies in the registry directory
 `
 
@@ -41,6 +42,10 @@ REMOVE_USAGE :: `Usage:
 
 SEARCH_USAGE :: `Usage:
   octo search <PKG> - searches the web for a dependency
+`
+
+UPDATE_USAGE :: `Usage:
+  octo update <PKG> - git pull rebase one of your dependencies
 `
 
 OLS_FILE :: "ols.json"

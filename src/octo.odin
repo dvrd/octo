@@ -28,6 +28,8 @@ octo :: proc() {
 		add_package()
 	case "remove", "rm":
 		remove_package()
+	case "update":
+		update_package()
 	case "search":
 		search_package()
 	case "list", "ls":

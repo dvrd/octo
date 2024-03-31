@@ -54,9 +54,10 @@ add_package :: proc() {
 		if len(new_pkg_info) == 2 do new_pkg_server = get_git_server()
 
 		repo_uri := fmt.tprintf("https://%s/%s/%s", new_pkg_server, new_pkg_owner, new_pkg_name)
-		clone_cmd: []string = {"git", "clone", repo_uri, registry_pkg_path}
-		ok := cmd.launch(clone_cmd)
-		catch(!ok, "Could not clone package")
+		catch(
+			!cmd.launch({"git", "clone", repo_uri, registry_pkg_path}),
+			"Could not clone package",
+		)
 	}
 
 	update_dependencies(new_pkg_name, registry_pkg_path, local_pkg_path)
