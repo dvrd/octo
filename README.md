@@ -1,5 +1,7 @@
 # Octo
 
+**Currently broken builds don't output errors**
+
 Octo is a bespoke package manager for Odin that is meant to be opinionated and comfortable.
 The concept is to maintain grain control of the process with some ergonomics.
 The program is just doing what I would do manually without magic

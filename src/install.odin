@@ -17,25 +17,18 @@ install_package :: proc() {
 	catch(Errno(err))
 
 	bin_path := get_bin_path(pwd, "release")
-	if !os.exists(bin_path) {
-		build_package()
-	}
+	if !os.exists(bin_path) do build_package()
 
 	home_path := os.get_env("HOME")
 	octo_registry_path := filepath.join({home_path, REGISTRY_DIR})
-	if !os.is_dir(octo_registry_path) {
-		catch(Errno(os.make_directory(octo_registry_path)))
-	}
+	if !os.is_dir(octo_registry_path) do catch(Errno(os.make_directory(octo_registry_path)))
 
 	octo_bin_path := filepath.join({octo_registry_path, "bin"})
-	if !os.is_dir(octo_bin_path) {
-		catch(Errno(os.make_directory(octo_bin_path)))
-	}
+	if !os.is_dir(octo_bin_path) do catch(Errno(os.make_directory(octo_bin_path)))
 
-	if os.exists(filepath.join({octo_bin_path, pwd_info.name})) {
-		warn(msg = "The package is already installed")
-		return
-	}
+	octo_bin_pkg_path := filepath.join({octo_bin_path, pwd_info.name})
+	bail(os.is_dir(octo_bin_pkg_path), "Package %s is a directory", octo_bin_pkg_path)
+	bail(os.exists(octo_bin_pkg_path), "Package %s is already installed", octo_bin_pkg_path)
 
 	info(
 		"%s `%s` release build [%s = %s]",
@@ -45,7 +38,7 @@ install_package :: proc() {
 		octo_bin_path,
 	)
 
-	catch(!link(bin_path, octo_bin_path), "Failed to install binary to system")
+	catch(!link(bin_path, octo_bin_pkg_path), "Failed to install binary to system")
 
 	info("%s installation", ansi.colorize("Successful", {0, 210, 80}))
 }

@@ -13,7 +13,7 @@ WARNING := ansi.colorize("  ", {255, 210, 0})
 MESSAGE := ansi.colorize("  ", {0, 144, 255})
 DEBUG := ansi.colorize("  ", {204, 146, 255})
 PROMPT := ansi.colorize(" 󰠗 ", {0, 144, 255})
-BAIL := ansi.colorize("  ", {0, 144, 255})
+BAIL := ansi.colorize(" 󱃋 ", {255, 96, 24})
 
 @(init)
 check_icons_enabled :: proc() {
@@ -225,7 +225,7 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 
 bail :: proc(did_fail := true, msg: string, args: ..any) {
 	if did_fail {
-		fmt.printfln(BAIL, fmt.tprintf(msg, ..args))
+		fmt.println(BAIL, fmt.tprintf(msg, ..args))
 		os.exit(1)
 	}
 }

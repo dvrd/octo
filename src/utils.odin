@@ -37,11 +37,11 @@ info :: proc(msg: string, args: ..any) {
 
 debug :: proc(msg: string, args: ..any) {
 	is_debug := os.get_env("OCTO_DEBUG") == "true"
-	if is_debug do fmt.println(failz.DEBUG, fmt.tprintf(msg, args))
+	if is_debug do fmt.println(failz.DEBUG, fmt.tprintf(msg, ..args))
 }
 
 prompt :: proc(sb: ^strings.Builder, msg: string, default := "") {
-	fmt.printf("%s %s", failz.PROMPT, msg)
+	fmt.printf("%s %s %s", failz.PROMPT, msg, default)
 	for c := libc.getchar(); c != '\n'; c = libc.getchar() {
 		strings.write_rune(sb, rune(c))
 	}

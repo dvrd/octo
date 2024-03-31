@@ -17,18 +17,20 @@ foreign lib {
 	_unix_symlink :: proc(name1: [^]c.char, name2: [^]c.char) -> c.int ---
 }
 
-link :: proc(src: string, target: string) -> bool {
+link :: proc(src, target: string) -> bool {
 	using failz
 
-	if os.is_dir(src) || os.is_file(target) {
+	if os.is_dir(src) || os.is_dir(target) {
+		debug("source or target is a directory")
 		return false
 	}
 
+	debug("Linking %v to %v", src, target)
 	src := transmute([]c.char)src
 	target := transmute([]c.char)target
 
 	if _unix_symlink(raw_data(src), raw_data(target)) == -1 {
-		warn(Errno(os.get_last_error()), fmt.tprintf("symlink:"))
+		warn(Errno(os.get_last_error()), fmt.tprintf("symlink: (%s)", target))
 		return false
 	}
 

@@ -2,7 +2,9 @@ package octo
 
 import "core:encoding/json"
 import "core:fmt"
+import "core:strings"
 import "core:os"
+import "core:path/filepath"
 import "libs:failz"
 
 Package :: struct {
@@ -45,6 +47,8 @@ update_config :: proc(pkg: ^Package) {
 }
 
 read_config :: proc(pkg: ^Package, pkg_path: string) {
+	using failz
+
 	config_path := filepath.join({pkg_path, OCTO_CONFIG_FILE})
 	if !os.exists(config_path) {
 		debug("Missing `octo` config in package")
@@ -60,7 +64,7 @@ read_config :: proc(pkg: ^Package, pkg_path: string) {
 	config_raw_data, success := os.read_entire_file(config_path)
 	catch(!success, "Could not read pkg config")
 
-	catch(json.unmarshal(config_raw_data, &pkg))
+	catch(json.unmarshal(config_raw_data, pkg))
 }
 
 contains_dependency :: proc(pkg: ^Package, target: string) -> bool {
@@ -69,12 +73,32 @@ contains_dependency :: proc(pkg: ^Package, target: string) -> bool {
 }
 
 find_dependency :: proc(pkg: ^Package, target: string) -> (string, bool) {
+	using failz
+
 	for dep_name, dep_version in pkg.dependencies {
-		server, owner, name, success := parse_dependency(pkg_uri)
+		server, owner, name, success := parse_dependency(pkg.url)
 		catch(!success, "Corrupt package uri")
 		if dep_name == target {
 			return dep_version, true
 		}
 	}
 	return "", false
+}
+
+get_pkg_info_from_args :: proc(server, owner, name: ^string) -> (pkg_info: []string) {
+	pkg_info = strings.split(os.args[2], "/")
+
+	switch len(pkg_info) {
+	case 1:
+		name^ = pkg_info[0]
+	case 2:
+		owner^ = pkg_info[0]
+		name^ = pkg_info[1]
+	case 3:
+		server^ = pkg_info[0]
+		owner^ = pkg_info[1]
+		name^ = pkg_info[2]
+	}
+
+	return
 }

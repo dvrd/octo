@@ -36,11 +36,12 @@ build_package :: proc() {
 					"build",
 					"src",
 					collections,
+					"-use-separate-modules",
 					fmt.tprintf("-out:%s", bin_path),
 					"-o:speed",
 				},
 			),
-			"Failed to build binary release target",
+			"Failed to build release target binary",
 		)
 	} else {
 		bin_path = get_bin_path(pwd)
@@ -56,7 +57,7 @@ build_package :: proc() {
 					"-debug",
 				},
 			),
-			"Failed to build binary debug target",
+			"Failed to build debug target binary",
 		)
 	}
 

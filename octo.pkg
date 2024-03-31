@@ -5,7 +5,11 @@
     "description": "Bespoke package manager for the Odin language",
     "version": "0.1.0",
     "license": "",
-    "keywords": [],
-    "dependencies": {}
-}
+    "root": "",
+    "keywords": [
 
+    ],
+    "dependencies": {
+
+    }
+}
