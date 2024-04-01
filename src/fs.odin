@@ -40,6 +40,7 @@ link :: proc(src, target: string) -> bool {
 write_to_file :: proc(path: string, content: string) {
 	using failz
 
+	debug("Writing to file: %s", path)
 	fd, err := os.open(
 		path,
 		os.O_WRONLY | os.O_CREATE,

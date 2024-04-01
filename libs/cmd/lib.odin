@@ -54,7 +54,7 @@ init :: proc(cmd: ^CmdRunner, args: []string) -> (ok: bool) {
 		cmd.path = args[0]
 	} else {
 		if cmd.path, ok = find_program(args[0]); !ok {
-			failz.warn(msg = fmt.tprint(args[0], "command not found:"))
+			failz.warn(msg = fmt.tprint("command not found:", args[0]))
 			return false
 		}
 	}

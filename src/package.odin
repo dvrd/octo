@@ -8,15 +8,15 @@ import "core:strings"
 import "libs:failz"
 
 Package :: struct {
-	name:         string,
-	url:          string,
-	readme:       string,
-	description:  string,
-	version:      string,
-	license:      string,
-	root:         string,
-	keywords:     [dynamic]string,
-	dependencies: map[string]string,
+	name:         string `json:"name"`,
+	url:          string `json:"url`,
+	readme:       string `json:"readme"`,
+	description:  string `json:"description"`,
+	version:      string `json:"version"`,
+	license:      string `json:"license"`,
+	root:         string `json:"root"`,
+	keywords:     [dynamic]string `json:"keywords"`,
+	dependencies: map[string]string `json:"dependencies"`,
 }
 
 get_config :: proc() -> ^Package {
@@ -46,24 +46,24 @@ update_config :: proc(pkg: ^Package) {
 	os.write_entire_file(OCTO_CONFIG_FILE, data)
 }
 
-read_config :: proc(pkg: ^Package, pkg_path: string) {
+read_config :: proc(pkg: ^Package, pkg_path, pkg_name: string) {
 	using failz
 
-	config_path := filepath.join({pkg_path, OCTO_CONFIG_FILE})
+	config_path := filepath.join({pkg_path, OPM_CONFIG_FILE})
 	debug("Reading config from %s", config_path)
 	if !os.exists(config_path) {
-		debug("Missing `octo` config in package")
-		debug("Trying `opm` config")
-		config_path = filepath.join({pkg_path, OPM_CONFIG_FILE})
+		debug("Missing `opm` config file in package")
+		config_path = filepath.join({pkg_path, OCTO_CONFIG_FILE})
+		debug("Trying reading from %s", config_path)
 	}
 	if !os.exists(config_path) {
-		debug("Missing `opm` config file in package")
+		debug("Missing `octo` config in package")
 		debug("Creating configuration for new package")
-		make_octo_file(config_path, config_path)
+		make_octo_file(pkg_path, pkg_name)
 	}
 
 	config_raw_data, success := os.read_entire_file(config_path)
-	catch(!success, "Could not read pkg config")
+	catch(!success, fmt.tprintf("Could not read %s config", config_path))
 
 	catch(json.unmarshal(config_raw_data, pkg))
 }

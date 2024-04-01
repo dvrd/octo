@@ -24,6 +24,8 @@ add_package :: proc() {
 	new_pkg_name: string
 	new_pkg_info := get_pkg_info_from_args(&new_pkg_server, &new_pkg_owner, &new_pkg_name)
 
+	if len(new_pkg_owner) != 0 do catch(set_env("OCTO_GIT_SERVER", new_pkg_server), "Could not set OCTO_GIT_SERVER")
+
 	libs_path := filepath.join({pwd, "libs"})
 	if !os.is_dir(libs_path) do catch(Errno(os.make_directory(libs_path)))
 
@@ -77,7 +79,7 @@ update_dependencies :: proc(new_pkg_name, registry_pkg_path, local_pkg_path: str
 
 	info("%s package configuration...", ansi.colorize("Reading", {0, 210, 80}))
 	new_pkg_config: Package
-	read_config(&new_pkg_config, registry_pkg_path)
+	read_config(&new_pkg_config, registry_pkg_path, new_pkg_name)
 	info("%s root folder for package...", ansi.colorize("Searching", {0, 210, 80}))
 	if new_pkg_config.root != "" {
 		registry_pkg_path = filepath.join({registry_pkg_path, new_pkg_config.root})

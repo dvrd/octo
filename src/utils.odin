@@ -164,23 +164,24 @@ make_octo_file :: proc(proj_path: string, proj_name: string, uri := "") {
 		defer builder_destroy(&git_user)
 		env_git_user, found = os.lookup_env("OCTO_GIT_USER")
 		if found {
-			write_string(&git_server, env_git_user)
+			write_string(&git_user, env_git_user)
 		} else {
 			prompt(&git_user, "Enter your git user: ")
 		}
 
 		owner := ok ? fmt.tprintf("%s<%s>", user_name, user_email) : ""
+		pkg_uri := filepath.join(
+			{"https://", to_string(git_server), to_string(git_user), proj_name},
+		)
 		write_to_file(
 			octo_config_path,
 			fmt.tprintf(
 				OCTO_CONFIG_TEMPLATE,
+				"0.1.0",
 				proj_name,
 				owner,
-				"0.1.0",
 				to_string(description),
-				to_string(git_server),
-				to_string(git_user),
-				proj_name,
+				pkg_uri,
 			),
 		)
 	}
@@ -194,9 +195,19 @@ make_placeholder_octo_file :: proc(proj_path, server, owner, name: string) {
 	if os.exists(octo_config_path) {
 		warn(msg = fmt.tprintf("Config %s already exists", bold(OCTO_CONFIG_FILE)))
 	} else {
+		git_user: Builder
+		defer builder_destroy(&git_user)
+		env_git_user, found := os.lookup_env("OCTO_GIT_USER")
+		if found {
+			write_string(&git_user, env_git_user)
+		} else {
+			prompt(&git_user, "Enter your git user: ")
+		}
+
+		pkg_uri := filepath.join({"https://", server, owner, name})
 		write_to_file(
 			octo_config_path,
-			fmt.tprintf(OCTO_CONFIG_TEMPLATE, name, owner, "0.1.0", "", server, owner, name),
+			fmt.tprintf(OCTO_CONFIG_TEMPLATE, "0.1.0", name, owner, "", pkg_uri),
 		)
 	}
 }

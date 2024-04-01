@@ -78,11 +78,11 @@ OLS_TEMPLATE :: `
 OCTO_CONFIG_FILE :: "octo.pkg"
 OPM_CONFIG_FILE :: "mod.pkg"
 OCTO_CONFIG_TEMPLATE :: `{{
+    version: "%s",
     name: "%s",
     owner: "%s",
-    version: "%s",
     description: "%s",
-    url: "https://%s/%s/%s",
+    url: "%s",
     readme: "",
     license: "",
     keywords: [],
