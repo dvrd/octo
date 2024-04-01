@@ -101,11 +101,9 @@ make_ols_file :: proc(proj_path: string) {
 }
 
 parse_dependency :: proc(uri: string) -> (string, string, string, bool) {
+	debug("Parsing dependency: %s", uri)
 	uri := uri
-	if strings.contains(uri, "://") {
-		split_uri := strings.split(uri, "://")
-		uri = split_uri[1]
-	}
+
 	parts := strings.split(uri, "/")
 	if len(parts) == 1 {
 		return parts[0], "", "", true
@@ -170,9 +168,7 @@ make_octo_file :: proc(proj_path: string, proj_name: string, uri := "") {
 		}
 
 		owner := ok ? fmt.tprintf("%s<%s>", user_name, user_email) : ""
-		pkg_uri := filepath.join(
-			{"https://", to_string(git_server), to_string(git_user), proj_name},
-		)
+		pkg_uri := filepath.join({to_string(git_server), to_string(git_user), proj_name})
 		write_to_file(
 			octo_config_path,
 			fmt.tprintf(
@@ -204,7 +200,7 @@ make_placeholder_octo_file :: proc(proj_path, server, owner, name: string) {
 			prompt(&git_user, "Enter your git user: ")
 		}
 
-		pkg_uri := filepath.join({"https://", server, owner, name})
+		pkg_uri := filepath.join({server, owner, name})
 		write_to_file(
 			octo_config_path,
 			fmt.tprintf(OCTO_CONFIG_TEMPLATE, "0.1.0", name, owner, "", pkg_uri),
