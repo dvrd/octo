@@ -3,7 +3,7 @@
     "url": "https://github.comdvrd//octo",
     "readme": "",
     "description": "Bespoke package manager for the Odin language",
-    "version": "0.1.0",
+    "version": "0.0.47",
     "license": "",
     "root": "",
     "keywords": [
@@ -11,6 +11,7 @@
     ],
     "dependencies": {
         "github.com/laytan/odin-http": "0.0.4-beta",
-        "github.com/dvrd/failz": "0.1.0"
+        "github.com/dvrd/failz": "0.0.1"
     }
 }
+

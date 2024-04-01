@@ -173,7 +173,7 @@ make_octo_file :: proc(proj_path: string, proj_name: string, uri := "") {
 			octo_config_path,
 			fmt.tprintf(
 				OCTO_CONFIG_TEMPLATE,
-				"0.1.0",
+				"0.0.1",
 				proj_name,
 				owner,
 				to_string(description),
@@ -203,7 +203,7 @@ make_placeholder_octo_file :: proc(proj_path, server, owner, name: string) {
 		pkg_uri := filepath.join({server, owner, name})
 		write_to_file(
 			octo_config_path,
-			fmt.tprintf(OCTO_CONFIG_TEMPLATE, "0.1.0", name, owner, "", pkg_uri),
+			fmt.tprintf(OCTO_CONFIG_TEMPLATE, "0.0.1", name, owner, "", pkg_uri),
 		)
 	}
 }
@@ -238,7 +238,10 @@ init_git :: proc() {
 		return
 	}
 
-	_, err := cmd.popen("git init", false, 0)
-	catch(err && !os.exists(".git"), "Failed to initialize git repository")
+	catch(Errno(os.make_directory(".git")))
+	catch(Errno(os.make_directory(".git/objects")))
+	catch(Errno(os.make_directory(".git/refs")))
+	write_to_file(".git/HEAD", "ref: refs/heads/main\n")
+	info("Initialized git directory")
 	write_to_file(GITIGNORE_FILE, GITIGNORE_TEMPLATE)
 }
