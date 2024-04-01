@@ -3,7 +3,7 @@ package octo
 REGISTRY_DIR :: ".octo"
 
 USAGE :: `
-octo [v0.0.47]
+octo [v0.16.0]
 
 Usage:
 
