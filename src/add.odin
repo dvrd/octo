@@ -1,5 +1,6 @@
 package octo
 
+import "base:runtime"
 import "core:fmt"
 import "core:os"
 import "core:path/filepath"
@@ -53,7 +54,9 @@ add_package :: proc() {
 			fmt.tprintf("Package `%s` not found in %s", new_pkg_name, purple("registry")),
 		)
 
+		fmt.println(len(new_pkg_info) == 2)
 		if len(new_pkg_info) == 2 do new_pkg_server = get_git_server()
+		fmt.println(new_pkg_server)
 
 		repo_uri := fmt.tprintf("https://%s/%s/%s", new_pkg_server, new_pkg_owner, new_pkg_name)
 		catch(
@@ -66,8 +69,11 @@ add_package :: proc() {
 }
 
 get_git_server :: proc() -> string {
-	env_server, found := os.lookup_env("OCTO_GIT_SERVER")
-	if found do return env_server
+	env_server := os.get_env("OCTO_GIT_SERVER")
+	#no_bounds_check env: [^]cstring = &runtime.args__[len(runtime.args__) + 1]
+
+	fmt.println(env)
+	if env_server != "" do return env_server
 	debug("No git server specified (OCTO_GIT_SERVER is unset), using default (github.com)")
 	return "github.com"
 }
