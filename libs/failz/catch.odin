@@ -1,5 +1,6 @@
 package failz
 
+import "core:compress"
 import "core:encoding/json"
 import "core:fmt"
 import "core:os"
@@ -31,6 +32,20 @@ catch :: proc(err: Error, msg: string = "", should_exit := true, location := #ca
 		case json.Error, json.Unmarshal_Data_Error, json.Unsupported_Type_Error:
 			fmt.sbprint(&sb, MESSAGE, ue)
 		}
+		fmt.eprintln(strings.to_string(sb))
+	case CompressionError:
+		if e == nil {return}
+		#partial switch ce in e {
+		case compress.General_Error, compress.Deflate_Error, compress.ZLIB_Error, compress.GZIP_Error, compress.ZIP_Error, AllocError:
+			fmt.sbprint(&sb, MESSAGE, ce)
+		}
+		fmt.eprintln(strings.to_string(sb))
+	case IOError:
+		if e == nil {return}
+		fmt.sbprint(&sb, MESSAGE, e)
+		fmt.eprintln(strings.to_string(sb))
+	case AppError:
+		fmt.sbprint(&sb, MESSAGE, purple(fmt.tprintf("[%v]", e.kind)), e.msg)
 		fmt.eprintln(strings.to_string(sb))
 	case SystemError:
 		fmt.sbprint(&sb, MESSAGE, purple(fmt.tprintf("[%v]", e.kind)), e.msg)

@@ -6,10 +6,11 @@
     "version": "0.16.0",
     "license": "",
     "root": "",
-    "keywords": [],
+    "keywords": [
+
+    ],
     "dependencies": {
         "github.com/laytan/odin-http": "0.0.4-beta",
-        "github.com/dvrd/failz": "0.0.1"
+        "github.com/dvrd/failz": "0.0.5"
     }
 }
-

@@ -1,7 +1,9 @@
 package failz
 
+import "core:compress"
 import "core:encoding/json"
 import "core:fmt"
+import "core:io"
 import "core:mem"
 import "core:os"
 import "core:strings"
@@ -9,8 +11,10 @@ import "libs:ansi"
 
 AllocError :: mem.Allocator_Error
 UnmarshalError :: json.Unmarshal_Error
+CompressionError :: compress.Error
+IOError :: io.Error
 
-ErrorKind :: enum {
+SystemErrorKind :: enum {
 	FileOpen,
 	FileRead,
 	FileWrite,
@@ -19,20 +23,37 @@ ErrorKind :: enum {
 	DirectoryCreate,
 	DirectoryRead,
 	DirectoryRemove,
-	HTTP,
 }
 
 SystemError :: struct {
+	kind: SystemErrorKind,
+	msg:  string,
+}
+
+ErrorKind :: enum {
+	Compression,
+	WrongFormat,
+	InvalidSize,
+}
+
+AppError :: struct {
 	kind: ErrorKind,
 	msg:  string,
 }
 
 Error :: union {
-	AllocError,
-	SystemError,
-	UnmarshalError,
-	Errno,
 	bool,
+
+	// Personal errors
+	AppError,
+	SystemError,
+
+	// Aliases to Odin internal errors
+	Errno,
+	AllocError,
+	CompressionError,
+	UnmarshalError,
+	IOError,
 }
 
 Errno :: enum {

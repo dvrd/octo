@@ -68,10 +68,10 @@ Op_Read :: struct {
 	callback: On_Read,
 	fd:       os.Handle,
 	buf:      []byte,
-	offset:	  int,
-	all:   	  bool,
-	read:  	  int,
-	len:   	  int,
+	offset:   int,
+	all:      bool,
+	read:     int,
+	len:      int,
 }
 
 Op_Write :: struct {
@@ -127,15 +127,24 @@ flush :: proc(io: ^IO) -> os.Errno {
 		context = completed.ctx
 
 		switch &op in completed.operation {
-		case Op_Accept:   do_accept (io, completed, &op)
-		case Op_Close:    do_close  (io, completed, &op)
-		case Op_Connect:  do_connect(io, completed, &op)
-		case Op_Read:     do_read   (io, completed, &op)
-		case Op_Recv:     do_recv   (io, completed, &op)
-		case Op_Send:     do_send   (io, completed, &op)
-		case Op_Write:    do_write  (io, completed, &op)
-		case Op_Timeout:  do_timeout(io, completed, &op)
-		case: unreachable()
+		case Op_Accept:
+			do_accept(io, completed, &op)
+		case Op_Close:
+			do_close(io, completed, &op)
+		case Op_Connect:
+			do_connect(io, completed, &op)
+		case Op_Read:
+			do_read(io, completed, &op)
+		case Op_Recv:
+			do_recv(io, completed, &op)
+		case Op_Send:
+			do_send(io, completed, &op)
+		case Op_Write:
+			do_write(io, completed, &op)
+		case Op_Timeout:
+			do_timeout(io, completed, &op)
+		case:
+			unreachable()
 		}
 	}
 
@@ -236,7 +245,7 @@ do_accept :: proc(io: ^IO, completion: ^Completion, op: ^Op_Accept) {
 do_close :: proc(io: ^IO, completion: ^Completion, op: ^Op_Close) {
 	ok := os.close(op.handle)
 
-	op.callback(completion.user_data, ok)
+	op.callback(completion.user_data, ok == os.ERROR_NONE)
 
 	pool_put(&io.completion_pool, completion)
 }
@@ -346,9 +355,9 @@ do_recv :: proc(io: ^IO, completion: ^Completion, op: ^Op_Recv) {
 }
 
 do_send :: proc(io: ^IO, completion: ^Completion, op: ^Op_Send) {
-	sent:  u32
+	sent: u32
 	errno: os.Errno
-	err:   net.Network_Error
+	err: net.Network_Error
 
 	switch sock in op.socket {
 	case net.TCP_Socket:
@@ -357,7 +366,13 @@ do_send :: proc(io: ^IO, completion: ^Completion, op: ^Op_Send) {
 
 	case net.UDP_Socket:
 		toaddr := _endpoint_to_sockaddr(op.endpoint.(net.Endpoint))
-		sent, errno = os.sendto(os.Socket(sock), op.buf, 0, cast(^os.SOCKADDR)&toaddr, i32(toaddr.len))
+		sent, errno = os.sendto(
+			os.Socket(sock),
+			op.buf,
+			0,
+			cast(^os.SOCKADDR)&toaddr,
+			i32(toaddr.len),
+		)
 		err = net.UDP_Send_Error(errno)
 	}
 

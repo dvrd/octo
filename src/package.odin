@@ -23,6 +23,9 @@ get_config :: proc() -> ^Package {
 	using failz
 
 	pkg := new(Package)
+
+	ensure(os.exists(OCTO_CONFIG_FILE), "Missing `octo` config in package")
+
 	config_file, success := os.read_entire_file(OCTO_CONFIG_FILE)
 	catch(!success, "Failed to read config file")
 
