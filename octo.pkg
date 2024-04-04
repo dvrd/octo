@@ -3,7 +3,7 @@
     "url": "https://github.comdvrd//octo",
     "readme": "",
     "description": "Bespoke package manager for the Odin language",
-    "version": "0.16.0",
+    "version": "0.1.18",
     "license": "",
     "root": "",
     "keywords": [
@@ -14,3 +14,4 @@
         "github.com/dvrd/failz": "0.0.5"
     }
 }
+
