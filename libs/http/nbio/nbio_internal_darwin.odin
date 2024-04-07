@@ -243,9 +243,9 @@ do_accept :: proc(io: ^IO, completion: ^Completion, op: ^Op_Accept) {
 }
 
 do_close :: proc(io: ^IO, completion: ^Completion, op: ^Op_Close) {
-	ok := os.close(op.handle)
+	errno := os.close(op.handle)
 
-	op.callback(completion.user_data, ok == os.ERROR_NONE)
+	op.callback(completion.user_data, errno == os.ERROR_NONE)
 
 	pool_put(&io.completion_pool, completion)
 }

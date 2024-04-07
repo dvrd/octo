@@ -36,6 +36,7 @@ build_package :: proc() {
 					"build",
 					"src",
 					collections,
+					"-collection:src=src",
 					"-use-separate-modules",
 					fmt.tprintf("-out:%s", bin_path),
 					"-o:speed",

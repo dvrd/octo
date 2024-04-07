@@ -102,5 +102,5 @@ main :: proc() {{
 
 GITIGNORE_FILE :: ".gitignore"
 GITIGNORE_TEMPLATE :: `
-target/
+target
 `
