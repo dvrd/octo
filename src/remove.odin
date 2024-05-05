@@ -23,16 +23,4 @@ remove_package :: proc() {
 	if !os.exists(local_pkg_path) do return
 
 	catch(remove_dir(local_pkg_path))
-
-	pkg_config := get_config()
-	find_dependency(pkg_config, dep_name)
-	for pkg_uri, version in pkg_config.dependencies {
-		server, owner, name, success := parse_dependency(pkg_uri)
-		catch(!success, "Corrupt package uri")
-		if name == dep_name {
-			delete_key(&pkg_config.dependencies, pkg_uri)
-			break
-		}
-	}
-	update_config(pkg_config)
 }

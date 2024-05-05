@@ -18,7 +18,6 @@ new_package :: proc() {
 	catch(Errno(err))
 
 	make_ols_file(proj_path)
-	make_octo_file(proj_path, proj_name)
 	make_main_file(make_src_dir(proj_path), proj_name)
 	init_git()
 

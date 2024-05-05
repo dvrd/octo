@@ -8,20 +8,20 @@ import "libs:ansi"
 import "libs:cmd"
 import "libs:failz"
 
-build_package :: proc() {
+build_package :: proc(is_install := false) {
 	using failz
 
 	timer: time.Stopwatch
 	time.stopwatch_start(&timer)
 	pwd := os.get_current_directory()
-	pkg := get_config()
+	pkg_name := filepath.base(pwd)
 
-	info("%s %s [%s] (%s)", ansi.colorize("Compiling", {0, 210, 80}), pkg.name, pkg.version, pwd)
+	info("%s %s [%s] (%s)", ansi.colorize("Compiling", {0, 210, 80}), pkg_name, "0.1.0", pwd)
 
 	has_dependencies := os.exists(filepath.join({pwd, "libs"}))
 	collections := has_dependencies ? "-collection:libs=libs" : ""
 
-	is_release := len(os.args) > 2 && os.args[2] == "--release"
+	is_release := is_install || len(os.args) > 2 && os.args[2] == "--release"
 	if !is_release && len(os.args) > 2 {
 		bail(msg = BUILD_USAGE)
 	}

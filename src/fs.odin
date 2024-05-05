@@ -82,6 +82,7 @@ read_dir :: proc(
 	[]os.File_Info,
 	failz.Error,
 ) {
+	debug("Reading directory: %s", dir_name)
 	f, errno := os.open(dir_name, os.O_RDONLY)
 	if errno != os.ERROR_NONE {
 		return nil, failz.SystemError{.DirectoryOpen, os.get_last_error_string()}

@@ -13,7 +13,6 @@ init_package :: proc() {
 	catch(Errno(err))
 
 	make_ols_file(pwd)
-	make_octo_file(pwd, pwd_info.name)
 	make_main_file(make_src_dir(pwd), pwd_info.name)
 	init_git()
 

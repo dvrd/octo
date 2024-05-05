@@ -13,7 +13,7 @@ find_program :: proc(target: string) -> (string, bool) #optional_ok {
 	dirs := strings.split(env_path, ":")
 
 	if len(dirs) == 0 {
-		warn(msg = "missing $PATH environment variable")
+		warn(msg = "[find_program] missing $PATH environment variable")
 		return "", false
 	}
 
@@ -24,7 +24,10 @@ find_program :: proc(target: string) -> (string, bool) #optional_ok {
 		defer os.close(fd)
 
 		if err != os.ERROR_NONE {
-			warn(Errno(err), fmt.tprintf("found issue opening directory (%s): ", dir))
+			warn(
+				Errno(err),
+				fmt.tprintf("[find_program] found issue opening directory (%s): ", dir),
+			)
 			continue
 		}
 
@@ -33,7 +36,10 @@ find_program :: proc(target: string) -> (string, bool) #optional_ok {
 
 		fis, err = os.read_dir(fd, -1)
 		if err != os.ERROR_NONE {
-			warn(Errno(err), fmt.tprintf("found issue reading directory (%s): ", dir))
+			warn(
+				Errno(err),
+				fmt.tprintf("[find_program] found issue reading directory (%s): ", dir),
+			)
 			continue
 		}
 
