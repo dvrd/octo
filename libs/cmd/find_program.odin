@@ -8,6 +8,10 @@ import "libs:failz"
 find_program :: proc(target: string) -> (string, bool) #optional_ok {
 	using failz
 
+	if os.exists(target) {
+		return target, true
+	}
+
 	sb := strings.builder_make()
 	env_path := os.get_env("PATH")
 	dirs := strings.split(env_path, ":")

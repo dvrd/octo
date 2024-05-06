@@ -75,23 +75,8 @@ OLS_TEMPLATE :: `
 }
 `
 
-OCTO_CONFIG_FILE :: "octo.pkg"
-OPM_CONFIG_FILE :: "mod.pkg"
-OCTO_CONFIG_TEMPLATE :: `{{
-    version: "%s",
-    name: "%s",
-    owner: "%s",
-    description: "%s",
-    url: "%s",
-    readme: "",
-    license: "",
-    keywords: [],
-    dependencies: {{}}
-}}`
-
 MAIN_FILE :: "main.odin"
-MAIN_TEMPLATE :: `
-package %s
+MAIN_TEMPLATE :: `package %s
 
 import "core:fmt"
 
@@ -103,4 +88,5 @@ main :: proc() {{
 GITIGNORE_FILE :: ".gitignore"
 GITIGNORE_TEMPLATE :: `
 target
+*.bin
 `

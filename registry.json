@@ -1,0 +1,11 @@
+{
+    "packages": {
+        "ansi": "github.com/dvrd/ansi.ol",
+        "builder": "github.com/dvrd/builder.ol",
+        "failz": "github.com/dvrd/failz.ol",
+        "cmd": "github.com/dvrd/cmd.ol",
+        "fetch": "github.com/dvrd/fetch.ol",
+        "cli": "github.com/dvrd/cli.ol"
+    },
+    "amount": 6
+}

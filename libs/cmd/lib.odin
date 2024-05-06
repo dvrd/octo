@@ -49,14 +49,10 @@ CmdRunner :: struct {
 
 init :: proc(cmd: ^CmdRunner, args: []string) -> (ok: bool) {
 	cmd.args = args
-
-	if os.exists(args[0]) {
-		cmd.path = args[0]
-	} else {
-		if cmd.path, ok = find_program(args[0]); !ok {
-			failz.warn(msg = fmt.tprint("command not found:", args[0]))
-			return false
-		}
+	cmd.path, ok = find_program(args[0])
+	if !ok {
+		failz.warn(msg = fmt.tprint("command not found:", args[0]))
+		return false
 	}
 
 	cmd.pid, cmd.err = fork()

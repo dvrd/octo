@@ -16,12 +16,22 @@ Package :: struct {
 get_pkg_from_args :: proc(target_pkg: string) -> (pkg: ^Package) {
 	if target_pkg == "" do return nil
 
+	pkg_name := filepath.base(target_pkg)
+	registry := read_registry()
+	pkg = new(Package)
+
+	if uri, ok := registry.packages[pkg_name]; ok {
+		pkg_info := strings.split(registry.packages[pkg_name], "/")
+		pkg.host = pkg_info[0]
+		pkg.owner = pkg_info[1]
+		pkg.name = pkg_info[2]
+		return
+	}
+
 	pkg_info := strings.split(target_pkg, "/")
 	n_parts := len(pkg_info)
 
 	if n_parts > 3 || n_parts == 0 do return nil
-
-	pkg = new(Package)
 
 	if n_parts == 3 {
 		pkg.host = pkg_info[0]

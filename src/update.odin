@@ -30,16 +30,19 @@ update_package :: proc() {
 
 	libs_path := filepath.join({pwd, "libs"})
 	if !os.is_dir(libs_path) do catch(Errno(os.make_directory(libs_path)))
+	if strings.contains(pkg.name, ".ol") do pkg.name = strings.trim_right(pkg.name, ".ol")
 	local_pkg_path := filepath.join({libs_path, pkg.name})
-	update_dependencies(&pkg, registry_pkg_path, local_pkg_path)
+	pkg_src_path := filepath.join({registry_pkg_path, "src"})
+	update_dependencies(&pkg, pkg_src_path, local_pkg_path)
 }
 
-update_dependencies :: proc(pkg: ^Package, registry_pkg_path, local_pkg_path: string) {
+update_dependencies :: proc(pkg: ^Package, pkg_src_path, local_pkg_path: string) {
 	using failz
 
 	info("%s `%s` package to dependencies", ansi.colorize("Adding", {0, 210, 80}), pkg.name)
+	debug("Copying from %s to %s", pkg_src_path, local_pkg_path)
 	_, err := copy_dir(
-		from = registry_pkg_path,
+		from = pkg_src_path,
 		to = local_pkg_path,
 		allowed_filetypes = {"odin", "a", "lib", "o", "dll", "dynlib"},
 	)
