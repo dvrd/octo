@@ -3,4 +3,14 @@
   version: "0.1.16",
   host: "github.com",
   owner: "dvrd"
+  builds: {
+    release: {
+      src: "src",
+      collections: {
+        libs: "libs"
+      },
+      optim: "speed",
+      separate_modules: true
+    }
+  }
 }

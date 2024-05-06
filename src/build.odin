@@ -11,56 +11,57 @@ import "libs:failz"
 build_package :: proc(is_install := false) {
 	using failz
 
+
 	timer: time.Stopwatch
 	time.stopwatch_start(&timer)
 	pwd := os.get_current_directory()
-	pkg_name := filepath.base(pwd)
+	pkg := read_pkg()
+	bail(pkg == nil, "No package config found (%s)", pwd)
 
-	info("%s %s [%s] (%s)", ansi.colorize("Compiling", {0, 210, 80}), pkg_name, "0.1.0", pwd)
+	info("%s %s [%s] (%s)", ansi.colorize("Compiling", {0, 210, 80}), pkg.name, "0.1.0", pwd)
 
-	has_dependencies := os.exists(filepath.join({pwd, "libs"}))
-	collections := has_dependencies ? "-collection:libs=libs" : ""
+	build_path := len(os.args) > 2 ? os.args[2] : "debug"
+	build_config, found := pkg.builds[build_path]
+	bail(!found, "No build configuration found for '%s'", build_path)
 
-	is_release := is_install || len(os.args) > 2 && os.args[2] == "--release"
-	if !is_release && len(os.args) > 2 {
-		bail(msg = BUILD_USAGE)
+	arguments := make([dynamic]string)
+	append(&arguments, "odin")
+	append(&arguments, "build")
+
+	bail(build_config.src == "", "No source file specified for build")
+	append(&arguments, build_config.src)
+
+	for dep in build_config.collections {
+		dep_path := build_config.collections[dep]
+		bail(!os.exists(dep_path), "Collection '%s' not found in codebase", dep)
+		append(&arguments, fmt.tprintf("-collection:%s=%s", dep, dep_path))
 	}
 
-	bin_path: string
-	if is_release {
-		bin_path = get_bin_path(pwd, "release")
-		catch(
-			!cmd.launch(
-				 {
-					"odin",
-					"build",
-					"src",
-					collections,
-					"-collection:src=src",
-					"-use-separate-modules",
-					fmt.tprintf("-out:%s", bin_path),
-					"-o:speed",
-				},
-			),
-			"Failed to build release target binary",
-		)
+	if build_config.separate_modules {
+		append(&arguments, "-use-separate-modules")
+	}
+
+	if build_config.debug {
+		append(&arguments, "-debug")
 	} else {
-		bin_path = get_bin_path(pwd)
-		catch(
-			!cmd.launch(
-				 {
-					"odin",
-					"build",
-					"src",
-					collections,
-					"-use-separate-modules",
-					fmt.tprintf("-out:%s", bin_path),
-					"-debug",
-				},
-			),
-			"Failed to build debug target binary",
-		)
+		switch build_config.optim {
+		case .none:
+			append(&arguments, "-o:none")
+		case .minimal:
+			append(&arguments, "-o:minimal")
+		case .size:
+			append(&arguments, "-o:size")
+		case .speed:
+			append(&arguments, "-o:speed")
+		case .aggressive:
+			append(&arguments, "-o:aggressive")
+		}
 	}
+
+	bin_path := get_bin_path(pwd, build_path)
+	append(&arguments, fmt.tprintf("-out:%s", bin_path))
+
+	catch(!cmd.launch(arguments[:]), "Failed to build debug target binary")
 
 	time.stopwatch_stop(&timer)
 	duration := time.stopwatch_duration(timer)
@@ -69,8 +70,10 @@ build_package :: proc(is_install := false) {
 	info(
 		"%s %s [%s] target(s) in %.2fs",
 		ansi.colorize("Finished", {0, 210, 80}),
-		is_release ? "release" : "dev",
-		is_release ? "optimized" : "unoptimized + debuginfo",
+		build_path,
+		build_config.optim != .none \
+		? "optimized" \
+		: build_config.debug ? "unoptimized + debuginfo" : "unoptimized",
 		duration_secs,
 	)
 }
