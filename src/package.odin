@@ -8,9 +8,10 @@ import "core:strings"
 import "libs:failz"
 
 Package :: struct {
-	host:  string,
-	owner: string,
-	name:  string,
+	host:    string,
+	owner:   string,
+	name:    string,
+	version: string,
 }
 
 get_pkg_from_args :: proc(target_pkg: string) -> (pkg: ^Package) {

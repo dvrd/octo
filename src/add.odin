@@ -24,9 +24,7 @@ add_package :: proc() {
 	libs_path := filepath.join({pwd, "libs"})
 	if !os.is_dir(libs_path) do catch(Errno(os.make_directory(libs_path)))
 
-	saved_pkg_name := pkg.name
-	if strings.contains(saved_pkg_name, ".ol") do saved_pkg_name = strings.trim_right(saved_pkg_name, ".ol")
-	local_pkg_path := filepath.join({libs_path, saved_pkg_name})
+	local_pkg_path := filepath.join({libs_path, pkg.name})
 	bail(
 		os.is_dir(local_pkg_path),
 		"Found `%s` package already in libs folder",
@@ -36,7 +34,7 @@ add_package :: proc() {
 	registry_path := filepath.join({home, REGISTRY_DIR})
 	if !os.is_dir(registry_path) do catch(Errno(os.make_directory(registry_path)))
 
-	registry_pkg_path := filepath.join({registry_path, saved_pkg_name})
+	registry_pkg_path := filepath.join({registry_path, pkg.name})
 	if !os.is_dir(registry_pkg_path) {
 		repo_uri := fmt.tprintf("https://%s/%s/%s", pkg.host, pkg.owner, pkg.name)
 		catch(
@@ -45,6 +43,5 @@ add_package :: proc() {
 		)
 	}
 
-	pkg_src_path := filepath.join({registry_pkg_path, "src"})
-	update_dependencies(pkg, pkg_src_path, local_pkg_path)
+	update_dependencies(pkg, registry_pkg_path, local_pkg_path)
 }

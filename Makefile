@@ -29,6 +29,7 @@ debug: $(DEBUG_OUT_DIR)
 
 $(REGISTRY_DIR):
 	@mkdir -p $(REGISTRY_DIR)
+	@cp registry.json $(REGISTRY_DIR)/registry.json
 
 $(RELEASE_OUT_DIR):
 	@mkdir -p $(RELEASE_OUT_DIR)

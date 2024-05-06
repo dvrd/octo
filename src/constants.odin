@@ -2,8 +2,7 @@ package octo
 
 REGISTRY_DIR :: ".octo"
 
-USAGE :: `
-octo [v0.16.0]
+USAGE :: `octo [v0.16.0]
 
 Usage:
 
@@ -49,8 +48,7 @@ UPDATE_USAGE :: `Usage:
 `
 
 OLS_FILE :: "ols.json"
-OLS_TEMPLATE :: `
-{
+OLS_TEMPLATE :: `{
     "$schema": "https://raw.githubusercontent.com/DanielGavin/ols/master/misc/ols.schema.json",
     "collections": [
         {
@@ -74,6 +72,14 @@ OLS_TEMPLATE :: `
     "enable_hover": true
 }
 `
+
+OCTO_PKG_FILE :: "octo.pkg"
+OCTO_PKG_TEMPLATE :: `{{
+  name: "%s",
+  version: "0.1.0",
+  host: "%s",
+  owner: "%s"
+}}`
 
 MAIN_FILE :: "main.odin"
 MAIN_TEMPLATE :: `package %s

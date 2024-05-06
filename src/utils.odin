@@ -100,6 +100,20 @@ make_ols_file :: proc(proj_path: string) {
 	}
 }
 
+make_octo_file :: proc(proj_path: string) {
+	using failz
+
+	octo_pkg_path := filepath.join({proj_path, OCTO_PKG_FILE})
+	if os.exists(octo_pkg_path) {
+		warn(msg = fmt.tprintf("Config %s already exists", bold(OLS_FILE)))
+	} else {
+		pkg_name := filepath.base(proj_path)
+		pkg := get_pkg_from_args(pkg_name)
+		contents := fmt.tprintf(OCTO_PKG_TEMPLATE, pkg.name, pkg.host, pkg.owner)
+		write_to_file(octo_pkg_path, contents)
+	}
+}
+
 make_src_dir :: proc(proj_path: string) -> string {
 	using failz
 
@@ -118,7 +132,8 @@ make_main_file :: proc(src_path: string, proj_name: string) {
 	if os.exists(main_path) {
 		warn(msg = fmt.tprintf("File %s already exists", bold(MAIN_FILE)))
 	} else {
-		write_to_file(main_path, fmt.tprintf(MAIN_TEMPLATE, proj_name))
+		contents := fmt.tprintf(MAIN_TEMPLATE, strings.to_snake_case(proj_name))
+		write_to_file(main_path, contents)
 	}
 }
 
