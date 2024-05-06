@@ -19,6 +19,7 @@ add_package :: proc() {
 	catch(!found, "HOME env variable not set")
 
 	pwd := os.get_current_directory()
+	catch(pwd == "", "Could not get current working directory")
 	pkg := get_pkg_from_args(os.args[2])
 
 	libs_path := filepath.join({pwd, "libs"})

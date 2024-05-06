@@ -2,7 +2,7 @@ package octo
 
 REGISTRY_DIR :: ".octo"
 
-USAGE :: `octo [v0.16.0]
+USAGE :: `octo [v0.1.16]
 
 Usage:
 
@@ -92,7 +92,6 @@ main :: proc() {{
 `
 
 GITIGNORE_FILE :: ".gitignore"
-GITIGNORE_TEMPLATE :: `
-target
+GITIGNORE_TEMPLATE :: `target
 *.bin
 `
