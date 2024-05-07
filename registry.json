@@ -1,11 +1,10 @@
 {
     "packages": {
-        "ansi": "github.com/dvrd/ansi.ol",
-        "builder": "github.com/dvrd/builder.ol",
-        "failz": "github.com/dvrd/failz.ol",
-        "cmd": "github.com/dvrd/cmd.ol",
-        "fetch": "github.com/dvrd/fetch.ol",
-        "cli": "github.com/dvrd/cli.ol"
+        "olansi": "github.com/dvrd/olansi",
+        "olfailz": "github.com/dvrd/olfailz",
+        "olcmd": "github.com/dvrd/olcmd",
+        "olfetch": "github.com/dvrd/olfetch",
+        "olgit": "github.com/dvrd/olgit"
     },
-    "amount": 6
+    "amount": 5
 }
