@@ -37,7 +37,7 @@ add_package :: proc() {
 
 	registry_pkg_path := filepath.join({registry_path, pkg.name})
 	if !os.is_dir(registry_pkg_path) {
-		repo_uri := fmt.tprintf("https://%s/%s/%s", pkg.host, pkg.owner, pkg.name)
+		repo_uri := fmt.tprintf("git@%s:%s/%s.git", pkg.host, pkg.owner, pkg.name)
 		catch(
 			!cmd.launch({"git", "clone", repo_uri, registry_pkg_path}),
 			"Could not clone package",

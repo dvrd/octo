@@ -1,6 +1,7 @@
 package octo
 
 import "core:fmt"
+import "core:mem"
 import "core:os"
 import "core:path/filepath"
 import "core:time"
@@ -76,4 +77,6 @@ build_package :: proc(is_install := false) {
 		: build_config.debug ? "unoptimized + debuginfo" : "unoptimized",
 		duration_secs,
 	)
+
+	mem.free_all(context.allocator)
 }
