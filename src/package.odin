@@ -126,10 +126,14 @@ read_pkg :: proc() -> (pkg: ^Package) {
 	catch(Error(err))
 
 	if exist := "debug" in pkg.builds; !exist {
+		collections := map[string]string{}
+		src := "."
+		if os.exists("libs") do collections["libs"] = "libs"
+		if os.exists("src") do src = "src"
 		pkg.builds["debug"] = Build_Config {
-			src = "src",
-			debug = true,
-			collections = map[string]string{"libs" = "libs"},
+			src              = src,
+			debug            = true,
+			collections      = collections,
 			separate_modules = true,
 		}
 	}

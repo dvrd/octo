@@ -13,10 +13,11 @@ install_package :: proc() {
 	using failz
 
 	pwd := os.get_current_directory()
-	pwd_info, err := os.stat(pwd)
-	catch(Errno(err))
+	pkg := read_pkg()
+	bail(pkg == nil, "No package config found (%s)", pwd)
 
-	bin_path := get_bin_path(pwd, "release")
+	build_name := len(os.args) > 2 ? os.args[2] : "debug"
+	bin_path := get_bin_path(pwd, build_name)
 	if !os.exists(bin_path) do build_package(is_install = true)
 	catch(!os.exists(bin_path), "Failed to build package")
 
@@ -27,15 +28,15 @@ install_package :: proc() {
 	octo_bin_path := filepath.join({octo_registry_path, "bin"})
 	if !os.is_dir(octo_bin_path) do catch(Errno(os.make_directory(octo_bin_path)))
 
-	if len(os.args) == 3 do pwd_info.name = os.args[2]
-	octo_bin_pkg_path := filepath.join({octo_bin_path, pwd_info.name})
+	if len(os.args) == 3 do pkg.name = os.args[2]
+	octo_bin_pkg_path := filepath.join({octo_bin_path, pkg.name})
 	bail(os.is_dir(octo_bin_pkg_path), "Package %s is a directory", octo_bin_pkg_path)
 	bail(os.exists(octo_bin_pkg_path), "Package %s is already installed", octo_bin_pkg_path)
 
 	info(
 		"%s `%s` release build [%s = %s]",
 		ansi.colorize("Installing", {0, 210, 80}),
-		pwd_info.name,
+		pkg.name,
 		ansi.colorize("target", {200, 150, 255}),
 		octo_bin_path,
 	)

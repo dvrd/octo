@@ -12,5 +12,5 @@
       optim: "speed",
       separate_modules: true
     }
-  }
+  },
 }
