@@ -1,9 +1,9 @@
 package octo
 
 import "core:fmt"
-import "core:mem"
 import "core:os"
 import "core:path/filepath"
+import "core:strings"
 import "core:time"
 import "libs:ansi"
 import "libs:cmd"
@@ -36,6 +36,39 @@ build_package :: proc(is_install := false) {
 		dep_path := build_config.collections[dep]
 		bail(!os.exists(dep_path), "Collection '%s' not found in codebase", dep)
 		append(&arguments, fmt.tprintf("-collection:%s=%s", dep, dep_path))
+	}
+
+	if len(build_config.linker_flags) != 0 {
+		sb := strings.builder_make()
+		for &flag in build_config.linker_flags {
+			if strings.contains(flag, "[") && strings.contains(flag, "]") {
+				start_idx := strings.index(flag, "[")
+				end_idx := strings.index(flag, "]")
+				vendor_library := flag[start_idx:end_idx]
+				flag = fmt.tprint(
+					"%s%s/vendor/%s%s",
+					flag[:start_idx],
+					ODIN_ROOT,
+					vendor_library,
+					flag[end_idx + 1:],
+				)
+			}
+			strings.write_string(&sb, flag)
+		}
+		append(&arguments, fmt.tprintf("-extra-linker-flags:%s", strings.to_string(sb)))
+	}
+
+	switch build_config.mode {
+	case .EXE:
+		append(&arguments, "-build-mode:exe")
+	case .DLL:
+		append(&arguments, "-build-mode:dll")
+	case .OBJ:
+		append(&arguments, "-build-mode:obj")
+	case .ASM:
+		append(&arguments, "-build-mode:asm")
+	case .LLVM:
+		append(&arguments, "-build-mode:llvm")
 	}
 
 	if build_config.separate_modules {
@@ -77,6 +110,4 @@ build_package :: proc(is_install := false) {
 		: build_config.debug ? "unoptimized + debuginfo" : "unoptimized",
 		duration_secs,
 	)
-
-	mem.free_all(context.allocator)
 }

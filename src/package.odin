@@ -89,7 +89,7 @@ Build_Config :: struct {
 	ignore_unknown_attrs: bool,
 	no_entry_point:       bool,
 	minimum_os:           string,
-	linker_flags:         string,
+	linker_flags:         []string,
 	assembler_flags:      string,
 	microarch:            Microarch,
 	reloc_mode:           Reloc_Mode,
