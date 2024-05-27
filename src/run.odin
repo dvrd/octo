@@ -33,7 +33,7 @@ run_package :: proc() {
 	bail(!found, "No executable configuration found for '%s'", build_name)
 
 	bin_path := get_bin_path(pwd, build_name)
-	if !os.exists(bin_path) do build_package()
+	build_package()
 
 	info("%s `%s`", ansi.colorize("Running", {0, 210, 80}), build_name)
 	catch(cmd.exec(bin_path, cmd_args), "Failed to run the package")

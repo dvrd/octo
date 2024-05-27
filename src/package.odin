@@ -112,6 +112,18 @@ Package :: struct {
 	builds:  map[string]Build_Config,
 }
 
+get_default_build :: proc() -> Build_Config {
+	collections := map[string]string{}
+	src := os.exists("src") ? "src" : "."
+	if os.exists("libs") do collections["libs"] = "libs"
+	return Build_Config {
+		src = src,
+		debug = true,
+		collections = collections,
+		separate_modules = true,
+	}
+}
+
 read_pkg :: proc() -> (pkg: ^Package) {
 	using failz
 
@@ -126,16 +138,7 @@ read_pkg :: proc() -> (pkg: ^Package) {
 	catch(Error(err))
 
 	if exist := "debug" in pkg.builds; !exist {
-		collections := map[string]string{}
-		src := "."
-		if os.exists("libs") do collections["libs"] = "libs"
-		if os.exists("src") do src = "src"
-		pkg.builds["debug"] = Build_Config {
-			src              = src,
-			debug            = true,
-			collections      = collections,
-			separate_modules = true,
-		}
+		pkg.builds["debug"] = get_default_build()
 	}
 
 	return

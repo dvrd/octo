@@ -38,15 +38,16 @@ build_package :: proc(is_install := false) {
 		append(&arguments, fmt.tprintf("-collection:%s=%s", dep, dep_path))
 	}
 
-	if len(build_config.linker_flags) != 0 {
+	has_no_linker_flags := len(build_config.linker_flags) == 0
+	if has_no_linker_flags {
 		sb := strings.builder_make()
 		for &flag in build_config.linker_flags {
 			if strings.contains(flag, "[") && strings.contains(flag, "]") {
 				start_idx := strings.index(flag, "[")
 				end_idx := strings.index(flag, "]")
-				vendor_library := flag[start_idx:end_idx]
-				flag = fmt.tprint(
-					"%s%s/vendor/%s%s",
+				vendor_library := flag[start_idx + 1:end_idx]
+				flag = fmt.tprintf(
+					"%s%svendor/%s%s",
 					flag[:start_idx],
 					ODIN_ROOT,
 					vendor_library,
@@ -54,8 +55,16 @@ build_package :: proc(is_install := false) {
 				)
 			}
 			strings.write_string(&sb, flag)
+			strings.write_string(&sb, " ")
 		}
 		append(&arguments, fmt.tprintf("-extra-linker-flags:%s", strings.to_string(sb)))
+	}
+
+	has_no_definitions := len(build_config.definitions) == 0
+	if has_no_definitions {
+		for def, val in build_config.definitions {
+			append(&arguments, fmt.tprintf("-define:%s=%v", def, val))
+		}
 	}
 
 	switch build_config.mode {
